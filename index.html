@@ -2242,6 +2242,1925 @@ BANKS.english['5'] = { label:"Grade 5 English", gens:[
   E5_genShades
 ] };
 
+
+/* ===== seed: BANKS.math['1'] ===== */
+/* Grade 1 Math — Learning Live question bank.
+   Uses ONLY global helpers: R, Rnz, pick, shuffle, repeatStr, numOpts, wordOpts.
+   Module-level data is prefixed M1_ to stay unique. */
+
+var M1_SHAPES = [
+  { name:"triangle",      n:3 },
+  { name:"square",        n:4 },
+  { name:"rectangle",     n:4 },
+  { name:"pentagon",      n:5 },
+  { name:"hexagon",       n:6 }
+];
+
+BANKS.math['1'] = { label:"Grade 1 Math", gens:[
+
+  /* 1. Addition within 20 */
+  function(){
+    var a=R(1,12), b=R(1,20-a), ans=a+b;
+    return {
+      topic:"Add within 20",
+      q:"What is <b>"+a+" + "+b+"</b>?",
+      options:numOpts(ans),
+      a:String(ans),
+      steps:[
+        "Start at "+a+" and count on "+b+" more.",
+        a+" + "+b+" = <b>"+ans+"</b>"
+      ],
+      say:a+" plus "+b
+    };
+  },
+
+  /* 2. Subtraction within 20 */
+  function(){
+    var a=R(5,20), b=R(1,a-1), ans=a-b;
+    return {
+      topic:"Subtract within 20",
+      q:"What is <b>"+a+" &minus; "+b+"</b>?",
+      options:numOpts(ans),
+      a:String(ans),
+      steps:[
+        "Start at "+a+" and take away "+b+".",
+        a+" &minus; "+b+" = <b>"+ans+"</b>"
+      ],
+      say:a+" minus "+b
+    };
+  },
+
+  /* 3. Add three one-digit numbers */
+  function(){
+    var a=R(1,9), b=R(1,9), c=R(1,9);
+    var ab=a+b, ans=ab+c;
+    return {
+      topic:"Add Three Numbers",
+      q:"What is <b>"+a+" + "+b+" + "+c+"</b>?",
+      options:numOpts(ans),
+      a:String(ans),
+      steps:[
+        "Add the first two: "+a+" + "+b+" = "+ab,
+        "Now add the last: "+ab+" + "+c+" = <b>"+ans+"</b>"
+      ],
+      say:a+" plus "+b+" plus "+c
+    };
+  },
+
+  /* 4. Count on — what comes next, within 120 */
+  function(){
+    var n=R(0,119), ans=n+1;
+    return {
+      topic:"Count On",
+      q:"What number comes just <b>after "+n+"</b>?",
+      options:numOpts(ans),
+      a:String(ans),
+      steps:[
+        "Counting up, say the next number after "+n+".",
+        n+", then <b>"+ans+"</b>"
+      ],
+      say:"what comes after "+n
+    };
+  },
+
+  /* 5. Place value — tens & ones */
+  function(){
+    var t=R(1,9), o=R(0,9), ans=t*10+o;
+    return {
+      topic:"Place Value",
+      q:"What is <b>"+t+" tens "+o+" ones</b>?",
+      options:numOpts(ans),
+      a:String(ans),
+      steps:[
+        t+" tens = "+(t*10)+", and "+o+" ones = "+o,
+        (t*10)+" + "+o+" = <b>"+ans+"</b>"
+      ],
+      say:t+" tens and "+o+" ones"
+    };
+  },
+
+  /* 6. Compare two 2-digit numbers — pick the right sign (>, <, =) */
+  function(){
+    var x=R(10,99), y=R(10,99);
+    if(R(1,5)===1){ y=x; }                 /* sometimes make them equal */
+    var ans = (x>y) ? ">" : (x<y) ? "<" : "=";
+    var reason = (x>y) ? (x+" is greater than "+y)
+               : (x<y) ? (x+" is less than "+y)
+               : ("they are equal");
+    return {
+      topic:"Compare Numbers",
+      q:"Which sign makes it true? <b>"+x+"</b> ___ <b>"+y+"</b>",
+      options:wordOpts(ans, [">","<","=","≥","≤"]),
+      a:ans,
+      steps:[
+        "Compare the tens first, then the ones.",
+        "Here "+reason+".",
+        "So "+x+" <b>"+ans+"</b> "+y
+      ],
+      say:"compare "+x+" and "+y
+    };
+  },
+
+  /* 7. 10 more / 10 less */
+  function(){
+    var n=R(11,110), more=R(1,2)===1;
+    var ans = more ? n+10 : n-10;
+    return {
+      topic:"10 More / 10 Less",
+      q:"What is <b>10 "+(more?"more":"less")+"</b> than <b>"+n+"</b>?",
+      options:numOpts(ans),
+      a:String(ans),
+      steps:[
+        (more?"Add":"Subtract")+" ten "+(more?"to":"from")+" the tens place.",
+        n+" "+(more?"+":"&minus;")+" 10 = <b>"+ans+"</b>"
+      ],
+      say:(more?"ten more than ":"ten less than ")+n
+    };
+  },
+
+  /* 8. Fact family — find the missing number */
+  function(){
+    var x=R(2,9), y=R(2,9), s=x+y, mode=R(1,4), q, ans, steps, say;
+    if(mode===1){
+      ans=y; q="<b>"+x+" + ? = "+s+"</b>";
+      steps=["Think: "+x+" plus what makes "+s+"?", s+" &minus; "+x+" = "+y, "The missing number is <b>"+y+"</b>"];
+      say=x+" plus what makes "+s;
+    } else if(mode===2){
+      ans=x; q="<b>? + "+y+" = "+s+"</b>";
+      steps=["Think: what plus "+y+" makes "+s+"?", s+" &minus; "+y+" = "+x, "The missing number is <b>"+x+"</b>"];
+      say="what plus "+y+" makes "+s;
+    } else if(mode===3){
+      ans=y; q="<b>"+s+" &minus; ? = "+x+"</b>";
+      steps=["Think: "+s+" take away what leaves "+x+"?", s+" &minus; "+x+" = "+y, "The missing number is <b>"+y+"</b>"];
+      say=s+" minus what leaves "+x;
+    } else {
+      ans=y; q="<b>"+s+" &minus; "+x+" = ?</b>";
+      steps=["Take "+x+" away from "+s+".", s+" &minus; "+x+" = "+y, "The answer is <b>"+y+"</b>"];
+      say=s+" minus "+x;
+    }
+    return {
+      topic:"Fact Family",
+      q:q,
+      options:numOpts(ans),
+      a:String(ans),
+      steps:steps,
+      say:say
+    };
+  },
+
+  /* 9. Telling time — o'clock / half past to a clock time */
+  function(){
+    var h=R(1,12), nextH=(h%12)+1, half=R(1,2)===1, ans, q, pool, steps, say;
+    if(half){
+      ans=h+":30";
+      q="Which clock shows <b>half past "+h+"</b>?";
+      pool=[h+":00", h+":15", h+":45", nextH+":30"];
+      steps=["'Half past' means 30 minutes after the hour.", "Half past "+h+" is <b>"+h+":30</b>."];
+      say="half past "+h;
+    } else {
+      ans=h+":00";
+      q="Which clock shows <b>"+h+" o'clock</b>?";
+      pool=[h+":30", h+":15", h+":45", nextH+":00"];
+      steps=["'o'clock' means exactly on the hour, with 0 minutes.", h+" o'clock is <b>"+h+":00</b>."];
+      say=h+" o'clock";
+    }
+    return {
+      topic:"Telling Time",
+      q:q,
+      options:wordOpts(ans, pool),
+      a:ans,
+      steps:steps,
+      say:say
+    };
+  },
+
+  /* 10. 2D shapes — sides / corners */
+  function(){
+    var s=pick(M1_SHAPES), attr=pick(["sides","corners"]), ans=s.n;
+    return {
+      topic:"2D Shapes",
+      q:"How many <b>"+attr+"</b> does a <b>"+s.name+"</b> have?",
+      options:numOpts(ans),
+      a:String(ans),
+      steps:[
+        "Picture a "+s.name+" and count its "+attr+".",
+        "A "+s.name+" has <b>"+ans+"</b> "+attr+"."
+      ],
+      say:"how many "+attr+" does a "+s.name+" have"
+    };
+  }
+
+] };
+
+/* ===== seed: BANKS.math['6'] ===== */
+/* Learning Live — Grade 6 Math question bank.
+   Uses ONLY the global helpers (R, Rnz, pick, shuffle, repeatStr, numOpts, wordOpts).
+   Module-level helpers are uniquely prefixed M6_ and do not redefine any global. */
+
+function M6_gcd(a, b){ a = Math.abs(a); b = Math.abs(b); while(b){ var t = b; b = a % b; a = t; } return a || 1; }
+function M6_lcm(a, b){ return Math.abs(a * b) / M6_gcd(a, b); }
+function M6_fracStr(num, den){
+  if(den < 0){ num = -num; den = -den; }
+  var g = M6_gcd(num, den) || 1;
+  var n = num / g, d = den / g;
+  if(n === 0) return "0";
+  if(d === 1) return String(n);
+  return n + "/" + d;
+}
+/* format an integer number of tenths as a clean one-decimal string (no float artifacts) */
+function M6_dec1(tenths){
+  var neg = tenths < 0, t = Math.abs(tenths);
+  var whole = Math.floor(t / 10), f = t % 10;
+  var s = (f === 0) ? String(whole) : (whole + "." + f);
+  return neg ? ("-" + s) : s;
+}
+/* build a pool of distinct wrong-answer strings (never equal to the correct string) */
+function M6_pool(correct, cands){
+  var out = [];
+  for(var i = 0; i < cands.length; i++){
+    var s = cands[i];
+    if(s !== correct && out.indexOf(s) < 0) out.push(s);
+  }
+  return out;
+}
+
+BANKS.math['6'] = { label:"Grade 6 Math", gens:[
+
+  /* 1. Ratios — write a ratio in simplest form (a:b) */
+  function(){
+    var a, b;
+    do { a = R(1,6); b = R(1,6); } while(a === b || M6_gcd(a, b) !== 1);
+    var k = R(2,6);
+    var A = a * k, B = b * k;
+    var correct = a + ":" + b;
+    var pool = M6_pool(correct, [ b + ":" + a, (a + 1) + ":" + b, a + ":" + (b + 1), A + ":" + B ]);
+    return {
+      topic:"Ratios",
+      q:"Write the ratio <b>" + A + ":" + B + "</b> in simplest form.",
+      options:wordOpts(correct, pool),
+      a:correct,
+      steps:[
+        "The greatest common factor of " + A + " and " + B + " is " + k + ".",
+        "Divide both numbers by " + k + ": " + A + " ÷ " + k + " = " + a + " and " + B + " ÷ " + k + " = " + b + ".",
+        "So the simplest form is <b>" + correct + "</b>."
+      ],
+      say:"A ratio is in simplest form when you divide both numbers by their greatest common factor."
+    };
+  },
+
+  /* 2. Unit rate — miles per hour */
+  function(){
+    var rate = R(6,15);      // miles per hour (the answer)
+    var hours = R(2,8);
+    var dist = rate * hours;
+    return {
+      topic:"Unit Rate",
+      q:"A car travels <b>" + dist + " miles</b> in <b>" + hours + " hours</b>. What is its speed in miles per hour?",
+      options:numOpts(rate).map(function(s){ return s + " mph"; }),
+      a:rate + " mph",
+      steps:[
+        "Unit rate means the distance for one hour, so divide the miles by the hours.",
+        dist + " ÷ " + hours + " = <b>" + rate + " mph</b>."
+      ],
+      say:"To find a unit rate, divide the total amount by the number of units, such as miles divided by hours."
+    };
+  },
+
+  /* 3. Percent of a number */
+  function(){
+    var pct = pick([10,20,25,40,50,60,75,80]);
+    var num = 20 * R(1,9);             // multiple of 20 keeps every answer a whole number
+    var ans = num * pct / 100;
+    return {
+      topic:"Percent of a Number",
+      q:"What is <b>" + pct + "% of " + num + "</b>?",
+      options:numOpts(ans),
+      a:String(ans),
+      steps:[
+        "Write the percent as a fraction over one hundred: " + pct + "% = " + pct + "/100.",
+        "Multiply by the number: " + pct + "/100 &times; " + num + " = <b>" + ans + "</b>."
+      ],
+      say:"To find a percent of a number, write the percent over one hundred and multiply it by the number."
+    };
+  },
+
+  /* 4. Divide a fraction by a fraction (reduce) */
+  function(){
+    var dens = [2,3,4,5];
+    var d1, d2, n1, n2;
+    do {
+      d1 = pick(dens); d2 = pick(dens);
+      n1 = R(1, d1 - 1); n2 = R(1, d2 - 1);
+    } while(n1 * d2 === d1 * n2);       // avoid a quotient of exactly 1
+    var cn = n1 * d2, cd = d1 * n2;
+    var correct = M6_fracStr(cn, cd);
+    var pool = M6_pool(correct, [
+      M6_fracStr(n1 * n2, d1 * d2),     // multiplied instead of divided
+      M6_fracStr(cd, cn),              // flipped the answer
+      M6_fracStr(cn + 1, cd),
+      M6_fracStr(cn, cd + 1)
+    ]);
+    return {
+      topic:"Divide Fractions",
+      q:"What is <b>" + n1 + "/" + d1 + " ÷ " + n2 + "/" + d2 + "</b>? (reduce)",
+      options:wordOpts(correct, pool),
+      a:correct,
+      steps:[
+        "Dividing by " + n2 + "/" + d2 + " is the same as multiplying by its reciprocal " + d2 + "/" + n2 + ".",
+        n1 + "/" + d1 + " &times; " + d2 + "/" + n2 + " = " + cn + "/" + cd + ".",
+        "Reduce to lowest terms: <b>" + correct + "</b>."
+      ],
+      say:"To divide by a fraction, flip the second fraction upside down and multiply, then reduce the answer."
+    };
+  },
+
+  /* 5. Decimal operations (× or ÷, clean one-decimal result) */
+  function(){
+    if(R(0,1) === 0){
+      /* multiply: (aT/10) × b  ->  one-decimal answer */
+      var aT = R(12,89), b = R(2,9);
+      var valT = aT * b;                // answer measured in tenths
+      var val = valT / 10;
+      return {
+        topic:"Decimal Operations",
+        q:"What is <b>" + M6_dec1(aT) + " &times; " + b + "</b>?",
+        options:numOpts(val),
+        a:String(val),
+        steps:[
+          "Multiply as whole numbers: " + aT + " &times; " + b + " = " + valT + ".",
+          "The first factor has one decimal place, so the answer has one decimal place: <b>" + M6_dec1(valT) + "</b>."
+        ],
+        say:"Multiply the digits as whole numbers, then place the decimal point so the answer has the same number of decimal places as the factors."
+      };
+    } else {
+      /* divide: (dividendT/10) ÷ w  ->  one-decimal answer */
+      var qT = R(12,89), w = R(2,9);
+      var dividendT = qT * w;           // dividend measured in tenths
+      var val2 = qT / 10;
+      return {
+        topic:"Decimal Operations",
+        q:"What is <b>" + M6_dec1(dividendT) + " ÷ " + w + "</b>?",
+        options:numOpts(val2),
+        a:String(val2),
+        steps:[
+          "Divide as whole numbers (in tenths): " + dividendT + " ÷ " + w + " = " + qT + " tenths.",
+          "Place the decimal point above its spot in the dividend: <b>" + M6_dec1(qT) + "</b>."
+        ],
+        say:"When you divide a decimal by a whole number, keep the decimal point lined up and divide as usual."
+      };
+    }
+  },
+
+  /* 6. Greatest common factor (GCF) of two numbers */
+  function(){
+    var g = R(2,9), p, q;
+    do { p = R(2,7); q = R(2,7); } while(p === q || M6_gcd(p, q) !== 1);
+    var A = g * p, B = g * q;           // gcd(A,B) = g exactly, since gcd(p,q)=1
+    return {
+      topic:"GCF",
+      q:"What is the greatest common factor (GCF) of <b>" + A + "</b> and <b>" + B + "</b>?",
+      options:numOpts(g),
+      a:String(g),
+      steps:[
+        A + " = " + g + " &times; " + p + " and " + B + " = " + g + " &times; " + q + ".",
+        "The parts " + p + " and " + q + " share no common factor, so the GCF is <b>" + g + "</b>."
+      ],
+      say:"The greatest common factor is the largest number that divides evenly into both numbers."
+    };
+  },
+
+  /* 7. Least common multiple (LCM) of two numbers */
+  function(){
+    var A, B;
+    do { A = R(2,12); B = R(2,12); } while(A === B);
+    var ans = M6_lcm(A, B);
+    var g = M6_gcd(A, B);
+    return {
+      topic:"LCM",
+      q:"What is the least common multiple (LCM) of <b>" + A + "</b> and <b>" + B + "</b>?",
+      options:numOpts(ans),
+      a:String(ans),
+      steps:[
+        "Multiply the two numbers and divide by their GCF (" + g + ").",
+        A + " &times; " + B + " ÷ " + g + " = " + (A * B) + " ÷ " + g + " = <b>" + ans + "</b>."
+      ],
+      say:"The least common multiple is the smallest number that both numbers divide into evenly."
+    };
+  },
+
+  /* 8. Integers & absolute value */
+  function(){
+    var n = Rnz(-20,-1);                // a negative integer makes the point clear
+    var ans = Math.abs(n);
+    return {
+      topic:"Absolute Value",
+      q:"What is the absolute value <b>|" + n + "|</b>?",
+      options:numOpts(ans),
+      a:String(ans),
+      steps:[
+        "Absolute value is the distance of a number from zero, and distance is never negative.",
+        n + " is " + ans + " units from zero, so |" + n + "| = <b>" + ans + "</b>."
+      ],
+      say:"The absolute value of a number is how far it is from zero, so it is always zero or positive."
+    };
+  },
+
+  /* 9. Compare / order integers — which is least or greatest */
+  function(){
+    var seen = {}, nums = [];
+    while(nums.length < 4){
+      var x = Rnz(-15,15);
+      if(!seen[x]){ seen[x] = 1; nums.push(x); }
+    }
+    var wantGreatest = (R(0,1) === 0);
+    var target = wantGreatest ? Math.max.apply(null, nums) : Math.min.apply(null, nums);
+    return {
+      topic:"Compare Integers",
+      q:"Which of these integers is the <b>" + (wantGreatest ? "greatest" : "least") + "</b>: " + nums.join(", ") + "?",
+      options:shuffle(nums.map(String)),
+      a:String(target),
+      steps:[
+        "On a number line, numbers further to the right are greater and further to the left are smaller.",
+        "The " + (wantGreatest ? "greatest" : "least") + " of " + nums.join(", ") + " is <b>" + target + "</b>."
+      ],
+      say:"When comparing integers, remember that the further left a number is on the number line, the smaller it is."
+    };
+  },
+
+  /* 10. Evaluate an expression for a given value of the variable */
+  function(){
+    var a = R(2,9), b = R(1,12), x = R(2,10);
+    var ans = a * x + b;
+    return {
+      topic:"Evaluate Expressions",
+      q:"Evaluate <b>" + a + "x + " + b + "</b> when <b>x = " + x + "</b>.",
+      options:numOpts(ans),
+      a:String(ans),
+      steps:[
+        "Substitute " + x + " for x: " + a + " &times; " + x + " + " + b + ".",
+        "Multiply first: " + a + " &times; " + x + " = " + (a * x) + ".",
+        "Then add: " + (a * x) + " + " + b + " = <b>" + ans + "</b>."
+      ],
+      say:"To evaluate an expression, replace the variable with its value and then follow the order of operations."
+    };
+  },
+
+  /* 11. One-step equations (x + a = b  or  ax = b) */
+  function(){
+    if(R(0,1) === 0){
+      var x = R(1,20), a = R(1,15), b = x + a;
+      return {
+        topic:"One-Step Equations",
+        q:"Solve for x: <b>x + " + a + " = " + b + "</b>.",
+        options:numOpts(x),
+        a:String(x),
+        steps:[
+          "Subtract " + a + " from both sides to undo the addition.",
+          "x = " + b + " − " + a + " = <b>" + x + "</b>."
+        ],
+        say:"To solve a one-step equation, do the opposite operation to both sides to get the variable alone."
+      };
+    } else {
+      var x2 = R(2,12), a2 = R(2,9), b2 = a2 * x2;
+      return {
+        topic:"One-Step Equations",
+        q:"Solve for x: <b>" + a2 + "x = " + b2 + "</b>.",
+        options:numOpts(x2),
+        a:String(x2),
+        steps:[
+          "Divide both sides by " + a2 + " to undo the multiplication.",
+          "x = " + b2 + " ÷ " + a2 + " = <b>" + x2 + "</b>."
+        ],
+        say:"To solve a one-step equation, do the opposite operation to both sides to get the variable alone."
+      };
+    }
+  },
+
+  /* 12. Area of a triangle or parallelogram */
+  function(){
+    if(R(0,1) === 0){
+      var base = 2 * R(1,8), h = R(2,12);    // even base keeps the triangle area a whole number
+      var ans = base * h / 2;
+      return {
+        topic:"Area",
+        q:"A triangle has a base of <b>" + base + " cm</b> and a height of <b>" + h + " cm</b>. What is its area?",
+        options:numOpts(ans).map(function(s){ return s + " cm²"; }),
+        a:ans + " cm²",
+        steps:[
+          "Area of a triangle = ½ &times; base &times; height.",
+          "½ &times; " + base + " &times; " + h + " = <b>" + ans + " cm²</b>."
+        ],
+        say:"The area of a triangle is one half times the base times the height."
+      };
+    } else {
+      var b = R(3,14), hh = R(2,12);
+      var ans2 = b * hh;
+      return {
+        topic:"Area",
+        q:"A parallelogram has a base of <b>" + b + " cm</b> and a height of <b>" + hh + " cm</b>. What is its area?",
+        options:numOpts(ans2).map(function(s){ return s + " cm²"; }),
+        a:ans2 + " cm²",
+        steps:[
+          "Area of a parallelogram = base &times; height.",
+          b + " &times; " + hh + " = <b>" + ans2 + " cm²</b>."
+        ],
+        say:"The area of a parallelogram is the base times the height."
+      };
+    }
+  },
+
+  /* 13. Mean (average) of a small list */
+  function(){
+    var n = 4;
+    var vals = [];
+    for(var i = 0; i < n - 1; i++){ vals.push(R(2,18)); }
+    var partial = vals.reduce(function(s, v){ return s + v; }, 0);
+    var last = ((n - (partial % n)) % n) + n * R(1,4);   // makes the total divisible by n
+    vals.push(last);
+    var sum = partial + last;
+    var mean = sum / n;
+    return {
+      topic:"Mean (Average)",
+      q:"What is the mean (average) of <b>" + vals.join(", ") + "</b>?",
+      options:numOpts(mean),
+      a:String(mean),
+      steps:[
+        "Add the numbers: " + vals.join(" + ") + " = " + sum + ".",
+        "Divide the sum by how many numbers there are: " + sum + " ÷ " + n + " = <b>" + mean + "</b>."
+      ],
+      say:"To find the mean, add all the numbers together and then divide by how many numbers there are."
+    };
+  }
+
+] };
+
+/* ===== seed: BANKS.math['7'] ===== */
+/* Learning Live — Grade 7 Math question bank.
+   Uses ONLY the global helpers (R, Rnz, pick, shuffle, repeatStr, numOpts, wordOpts).
+   Module-level helpers are uniquely prefixed M7_ and do not redefine any global. */
+
+function M7_gcd(a, b){ a = Math.abs(a); b = Math.abs(b); while(b){ var t = b; b = a % b; a = t; } return a || 1; }
+function M7_fracStr(num, den){
+  if(den < 0){ num = -num; den = -den; }
+  if(num === 0) return "0";
+  var g = M7_gcd(num, den) || 1;
+  var n = num / g, d = den / g;
+  if(d === 1) return String(n);
+  return n + "/" + d;
+}
+function M7_par(n){ return n < 0 ? "(" + n + ")" : String(n); }
+function M7_fmt(cents){ return String(cents / 100); }
+
+BANKS.math['7'] = { label:"Grade 7 Math", gens:[
+
+  /* 1. Solve a proportion  a/b = x/d */
+  function(){
+    var b = R(2,9), a = R(1,9), k = R(2,6);
+    var d = b * k;          // denominator on the right
+    var x = a * k;          // the answer
+    return {
+      topic:"Solve a Proportion",
+      q:"Solve the proportion: <b>" + a + "/" + b + " = x/" + d + "</b>",
+      options:numOpts(x),
+      a:String(x),
+      steps:[
+        "Cross-multiply: " + a + " &times; " + d + " = " + b + " &times; x",
+        "So " + (a * d) + " = " + b + "x",
+        "Divide both sides by " + b + ": x = <b>" + x + "</b>"
+      ],
+      say:"Two equal ratios form a proportion, so cross multiply and then divide to find the missing value."
+    };
+  },
+
+  /* 2. Unit rate (miles per hour) */
+  function(){
+    var speed = R(3,9), hours = R(2,6);
+    var dist = speed * hours;
+    return {
+      topic:"Unit Rate",
+      q:"A car travels <b>" + dist + " miles</b> in <b>" + hours + " hours</b> at a steady speed. What is its speed?",
+      options:numOpts(speed).map(function(s){ return s + " mph"; }),
+      a:speed + " mph",
+      steps:[
+        "A unit rate is the amount for just one unit, so divide distance by time.",
+        dist + " &divide; " + hours + " = <b>" + speed + " mph</b>"
+      ],
+      say:"A unit rate tells how much for one unit, so divide the total distance by the number of hours."
+    };
+  },
+
+  /* 3. Percent — final amount (tax / tip / discount / markup) */
+  function(){
+    var type = pick(["discount","tax","tip","markup"]);
+    var base = R(1,10) * 20;                 // 20..200, a multiple of 20
+    var pct = pick([5,10,15,20,25,50]);      // base*pct is always a multiple of 100
+    var amount = base * pct / 100;           // whole number
+    var isDiscount = (type === "discount");
+    var final = isDiscount ? (base - amount) : (base + amount);
+    var q, lead;
+    if(type === "discount"){ q = "A $" + base + " item is <b>" + pct + "% off</b>. What is the sale price?"; }
+    else if(type === "tax"){ q = "A $" + base + " item has <b>" + pct + "% sales tax</b> added. What is the total cost?"; }
+    else if(type === "tip"){ q = "A $" + base + " restaurant bill gets a <b>" + pct + "% tip</b>. What is the total paid?"; }
+    else { q = "A store buys an item for $" + base + " and marks it up <b>" + pct + "%</b>. What is the new price?"; }
+    lead = isDiscount ? "Subtract that from the price" : "Add that to the price";
+    return {
+      topic:"Percent Problems",
+      q:q,
+      options:numOpts(final).map(function(s){ return "$" + s; }),
+      a:"$" + final,
+      steps:[
+        pct + "% of $" + base + " = " + pct + "/100 &times; " + base + " = $" + amount,
+        lead + ": $" + base + (isDiscount ? " − $" : " + $") + amount + " = <b>$" + final + "</b>"
+      ],
+      say:"First find the percent of the price, then add it on for tax, tip or markup, or take it off for a discount."
+    };
+  },
+
+  /* 4. Add / subtract integers (including negatives) */
+  function(){
+    var a = Rnz(-20,20), b = Rnz(-15,15);
+    var op = pick(["+","−"]);
+    var ans = (op === "+") ? (a + b) : (a - b);
+    var bShown = (b < 0) ? "(" + b + ")" : String(b);
+    return {
+      topic:"Add & Subtract Integers",
+      q:"What is <b>" + a + " " + op + " " + bShown + "</b>?",
+      options:numOpts(ans, Math.max(3, Math.round(Math.abs(ans) * 0.3) + 2), true),
+      a:String(ans),
+      steps:[
+        "Picture a number line and start at " + a + ".",
+        (op === "+")
+          ? "Adding " + b + " moves you to <b>" + ans + "</b>."
+          : "Subtracting " + b + " moves you to <b>" + ans + "</b>."
+      ],
+      say:"On a number line, adding moves you right and subtracting moves you left, and a negative number flips that direction."
+    };
+  },
+
+  /* 5. Multiply / divide integers (including negatives) */
+  function(){
+    var mode = pick(["×","÷"]);
+    if(mode === "×"){
+      var a = Rnz(-12,12), b = Rnz(-12,12);
+      var ans = a * b;
+      return {
+        topic:"Multiply & Divide Integers",
+        q:"What is <b>" + M7_par(a) + " &times; " + M7_par(b) + "</b>?",
+        options:numOpts(ans, Math.max(4, Math.round(Math.abs(ans) * 0.3) + 2), true),
+        a:String(ans),
+        steps:[
+          "Multiply the digits: " + Math.abs(a) + " &times; " + Math.abs(b) + " = " + Math.abs(ans),
+          "Same signs give a positive, different signs give a negative, so the answer is <b>" + ans + "</b>."
+        ],
+        say:"Multiply or divide the numbers normally, then make the answer positive if the signs match and negative if they do not."
+      };
+    } else {
+      var quot = Rnz(-12,12), divisor = Rnz(-12,12);
+      var dividend = quot * divisor;
+      var ans2 = quot;
+      return {
+        topic:"Multiply & Divide Integers",
+        q:"What is <b>" + M7_par(dividend) + " &divide; " + M7_par(divisor) + "</b>?",
+        options:numOpts(ans2, Math.max(4, Math.round(Math.abs(ans2) * 0.3) + 2), true),
+        a:String(ans2),
+        steps:[
+          "Divide the digits: " + Math.abs(dividend) + " &divide; " + Math.abs(divisor) + " = " + Math.abs(ans2),
+          "Same signs give a positive, different signs give a negative, so the answer is <b>" + ans2 + "</b>."
+        ],
+        say:"Multiply or divide the numbers normally, then make the answer positive if the signs match and negative if they do not."
+      };
+    }
+  },
+
+  /* 6. Operations with rational numbers (fraction +, −, or ×; reduce) */
+  function(){
+    var dens = [2,3,4,5,6,8,10];
+    var op = pick(["+","−","×"]);
+    var d1 = pick(dens), d2 = pick(dens);
+    if(op !== "×"){ while(d2 === d1){ d2 = pick(dens); } }
+    var n1 = R(1, d1 - 1), n2 = R(1, d2 - 1);
+    var cn, cd;
+    if(op === "×"){ cn = n1 * n2; cd = d1 * d2; }
+    else { cd = d1 * d2; cn = (op === "+") ? (n1 * d2 + n2 * d1) : (n1 * d2 - n2 * d1); }
+    var correct = M7_fracStr(cn, cd);
+    var opShown = (op === "×") ? "&times;" : op;
+    var pool = [
+      cn + "/" + cd,
+      M7_fracStr(cn + 1, cd),
+      M7_fracStr(cn - 1, cd),
+      M7_fracStr(cn, cd + 1),
+      (n1 + n2) + "/" + (d1 + d2),
+      M7_fracStr(-cn, cd)
+    ];
+    return {
+      topic:"Rational Numbers",
+      q:"What is <b>" + n1 + "/" + d1 + " " + opShown + " " + n2 + "/" + d2 + "</b>? (reduce)",
+      options:wordOpts(correct, pool),
+      a:correct,
+      steps:(op === "×")
+        ? [
+            "Multiply the numerators: " + n1 + " &times; " + n2 + " = " + cn,
+            "Multiply the denominators: " + d1 + " &times; " + d2 + " = " + cd,
+            "So it is " + cn + "/" + cd + ", which reduces to <b>" + correct + "</b>"
+          ]
+        : [
+            "Use a common denominator of " + cd + ": " + n1 + "/" + d1 + " = " + (n1 * d2) + "/" + cd + " and " + n2 + "/" + d2 + " = " + (n2 * d1) + "/" + cd,
+            (op === "+" ? "Add" : "Subtract") + " the numerators to get " + cn + "/" + cd + ".",
+            "Reduce to lowest terms: <b>" + correct + "</b>"
+          ],
+      say:"To add or subtract fractions use a common denominator, to multiply go straight across, and then reduce the answer."
+    };
+  },
+
+  /* 7. Two-step equation  ax + b = c  (x may be negative) */
+  function(){
+    var a = R(2,9);
+    var x = Rnz(-9,9);
+    var b = Rnz(-15,15);
+    var c = a * x + b;
+    var bPart = (b >= 0) ? "+ " + b : "− " + Math.abs(b);
+    var step1 = (b >= 0)
+      ? "Subtract " + b + " from both sides: " + a + "x = " + (c - b)
+      : "Add " + Math.abs(b) + " to both sides: " + a + "x = " + (c - b);
+    return {
+      topic:"Two-Step Equations",
+      q:"Solve for x: <b>" + a + "x " + bPart + " = " + c + "</b>",
+      options:numOpts(x, Math.max(3, Math.abs(x) + 2), true),
+      a:String(x),
+      steps:[
+        step1,
+        "Divide both sides by " + a + ": x = <b>" + x + "</b>"
+      ],
+      say:"Undo the equation in reverse order: first move the added number to the other side, then divide by the number in front of x."
+    };
+  },
+
+  /* 8. One-variable inequality — which value of x makes it true */
+  function(){
+    var a = R(2,5);
+    var k = Rnz(-6,6);          // boundary: solution is x > k
+    var b = Rnz(-9,9);
+    var c = a * k + b;          // so  a*x + b > c  <=>  x > k
+    var bPart = (b >= 0) ? "+ " + b : "− " + Math.abs(b);
+    var trueVal = k + 1;        // the only option that satisfies x > k
+    var opts = shuffle([String(trueVal), String(k), String(k - 1), String(k - 2)]);
+    return {
+      topic:"Inequalities",
+      q:"Which value of <b>x</b> makes <b>" + a + "x " + bPart + " &gt; " + c + "</b> true?",
+      options:opts,
+      a:String(trueVal),
+      steps:[
+        "Solve it: " + a + "x " + bPart + " &gt; " + c + " becomes " + a + "x &gt; " + (c - b) + ", so x &gt; " + k + ".",
+        "The only choice greater than " + k + " is <b>" + trueVal + "</b>."
+      ],
+      say:"Solve the inequality the same way as an equation to find the boundary, then pick the value on the correct side of it."
+    };
+  },
+
+  /* 9. Circumference of a circle  (C = 2 × 3.14 × r) */
+  function(){
+    var r = pick([3,4,5,6,7,8,10]);
+    var ansC = 628 * r;                 // circumference in cents of a cm
+    var ans = M7_fmt(ansC);
+    var pool = [
+      M7_fmt(314 * r) + " cm",          // forgot to double the radius
+      M7_fmt(314 * r * r) + " cm",      // used the area formula
+      M7_fmt(628 * (r + 1)) + " cm"     // wrong radius
+    ];
+    return {
+      topic:"Circumference of a Circle",
+      q:"A circle has a radius of <b>" + r + " cm</b>. What is its circumference? (use 3.14 for &pi;)",
+      options:wordOpts(ans + " cm", pool),
+      a:ans + " cm",
+      steps:[
+        "Circumference = 2 &times; &pi; &times; r = 2 &times; 3.14 &times; " + r,
+        "= <b>" + ans + " cm</b>"
+      ],
+      say:"To find the distance around a circle, multiply two times three point one four times the radius."
+    };
+  },
+
+  /* 10. Area of a circle  (A = 3.14 × r × r) */
+  function(){
+    var r = pick([3,4,5,6,7,8,10]);
+    var ansC = 314 * r * r;             // area in cents of a square cm
+    var ans = M7_fmt(ansC);
+    var pool = [
+      M7_fmt(628 * r) + " cm²",         // used the circumference formula
+      M7_fmt(314 * r) + " cm²",         // forgot to square the radius
+      M7_fmt(314 * (r + 1) * (r + 1)) + " cm²" // wrong radius
+    ];
+    return {
+      topic:"Area of a Circle",
+      q:"A circle has a radius of <b>" + r + " cm</b>. What is its area? (use 3.14 for &pi;)",
+      options:wordOpts(ans + " cm²", pool),
+      a:ans + " cm²",
+      steps:[
+        "Area = &pi; &times; r &times; r = 3.14 &times; " + r + " &times; " + r,
+        "= <b>" + ans + " cm²</b>"
+      ],
+      say:"To find the area of a circle, multiply three point one four by the radius times the radius."
+    };
+  },
+
+  /* 11. Complementary / supplementary angles — find the missing angle */
+  function(){
+    var type = pick(["complementary","supplementary"]);
+    var total = (type === "complementary") ? 90 : 180;
+    var given = (type === "complementary") ? R(10,80) : R(10,170);
+    var missing = total - given;
+    return {
+      topic:"Complementary & Supplementary Angles",
+      q:"Two angles are <b>" + type + "</b>. One angle is <b>" + given + "°</b>. What is the other angle?",
+      options:numOpts(missing).map(function(s){ return s + "°"; }),
+      a:missing + "°",
+      steps:[
+        (type === "complementary")
+          ? "Complementary angles add up to 90°."
+          : "Supplementary angles add up to 180°.",
+        total + "° − " + given + "° = <b>" + missing + "°</b>"
+      ],
+      say:"Complementary angles add to ninety degrees and supplementary angles add to one hundred eighty degrees, so subtract the known angle."
+    };
+  }
+
+] };
+
+/* ===== seed: BANKS.english['1'] ===== */
+/* Learning Live — Grade 1 English question bank.
+   Uses ONLY the global helpers (R, Rnz, pick, shuffle, repeatStr, numOpts, wordOpts).
+   All module-level data/helpers are uniquely prefixed E1_. */
+
+/* small shared builder: answer + up to 3 distinct wrong options, shuffled */
+function E1_opts(correct, wrongPool){ return shuffle(wordOpts(correct, wrongPool)); }
+function E1_cap(w){ return w.charAt(0).toUpperCase()+w.slice(1); }
+
+/* ---- 1. Beginning sound ---- */
+var E1_BEGIN = [
+  { letter:"b", word:"ball", wrong:["sun","cat","dog"] },
+  { letter:"s", word:"sun",  wrong:["dog","map","ten"] },
+  { letter:"m", word:"map",  wrong:["cat","pig","run"] },
+  { letter:"c", word:"cat",  wrong:["bus","fan","log"] },
+  { letter:"d", word:"dog",  wrong:["net","pen","web"] },
+  { letter:"f", word:"fish", wrong:["hat","jam","van"] },
+  { letter:"t", word:"top",  wrong:["red","mud","sip"] },
+  { letter:"h", word:"hat",  wrong:["bag","cup","lid"] }
+];
+
+/* ---- 2. Ending sound ---- */
+var E1_END = [
+  { letter:"t", word:"cat", wrong:["dog","sun","bus"] },
+  { letter:"g", word:"dog", wrong:["cat","map","pin"] },
+  { letter:"n", word:"sun", wrong:["cat","web","mud"] },
+  { letter:"p", word:"map", wrong:["dog","bed","can"] },
+  { letter:"d", word:"bed", wrong:["cat","sun","map"] },
+  { letter:"m", word:"jam", wrong:["cat","dog","pin"] },
+  { letter:"s", word:"bus", wrong:["cat","dog","pen"] },
+  { letter:"x", word:"fox", wrong:["cat","sun","map"] }
+];
+
+/* ---- 3. Short vowel sound ---- */
+var E1_VOWEL = [
+  { v:"a", ex:"cat", word:"bat", wrong:["dog","pig","cup"] },
+  { v:"a", ex:"cat", word:"man", wrong:["ten","dog","pig"] },
+  { v:"e", ex:"bed", word:"pen", wrong:["cat","dog","bus"] },
+  { v:"e", ex:"bed", word:"red", wrong:["cat","pig","dog"] },
+  { v:"i", ex:"pig", word:"sit", wrong:["cat","dog","cup"] },
+  { v:"i", ex:"pig", word:"pin", wrong:["bat","dog","cup"] },
+  { v:"o", ex:"dog", word:"pot", wrong:["cat","pig","bus"] },
+  { v:"o", ex:"dog", word:"hop", wrong:["cat","pig","bus"] },
+  { v:"u", ex:"cup", word:"bug", wrong:["cat","pig","dog"] },
+  { v:"u", ex:"cup", word:"sun", wrong:["cat","pig","dog"] }
+];
+
+/* ---- 4. Rhyming words ---- */
+var E1_RHYME = [
+  { base:"cat", rhyme:"hat",  wrong:["dog","sun","bed"] },
+  { base:"dog", rhyme:"log",  wrong:["cat","pig","cup"] },
+  { base:"pig", rhyme:"wig",  wrong:["dog","sun","man"] },
+  { base:"sun", rhyme:"fun",  wrong:["cat","dog","bed"] },
+  { base:"bed", rhyme:"red",  wrong:["cat","dog","pig"] },
+  { base:"man", rhyme:"fan",  wrong:["dog","sun","log"] },
+  { base:"cup", rhyme:"pup",  wrong:["cat","dog","bed"] },
+  { base:"hop", rhyme:"top",  wrong:["cat","sun","bed"] },
+  { base:"bug", rhyme:"rug",  wrong:["cat","dog","pin"] },
+  { base:"ball",rhyme:"wall", wrong:["dog","sun","bed"] },
+  { base:"car", rhyme:"star", wrong:["dog","sun","bed"] },
+  { base:"tree",rhyme:"bee",  wrong:["cat","dog","sun"] }
+];
+
+/* ---- 5. Consonant blends ---- */
+var E1_BLEND = [
+  { bl:"bl", word:"blue",  wrong:["cat","sun","dog"] },
+  { bl:"st", word:"star",  wrong:["dog","map","pig"] },
+  { bl:"tr", word:"tree",  wrong:["cat","sun","dog"] },
+  { bl:"cr", word:"crab",  wrong:["dog","map","sun"] },
+  { bl:"fl", word:"flag",  wrong:["cat","dog","sun"] },
+  { bl:"gr", word:"grass", wrong:["cat","sun","dog"] },
+  { bl:"sn", word:"snail", wrong:["cat","dog","map"] },
+  { bl:"sk", word:"skip",  wrong:["cat","dog","sun"] },
+  { bl:"sp", word:"spoon", wrong:["cat","dog","map"] },
+  { bl:"fr", word:"frog",  wrong:["cat","sun","dog"] },
+  { bl:"cl", word:"clock", wrong:["dog","map","sun"] },
+  { bl:"pl", word:"plane", wrong:["cat","dog","sun"] }
+];
+
+/* ---- 6. Plural -s (one cat -> two cats) ---- */
+var E1_PLURAL = ["cat","dog","pig","hat","bug","cup","pen","bed","map","hen","cap","net"];
+
+/* ---- 7. Naming words (nouns) in a sentence ---- */
+var E1_NOUN = [
+  { s:"The big dog runs fast.",    noun:"dog",  wrong:["runs","big","fast"] },
+  { s:"A little girl sings well.", noun:"girl", wrong:["sings","little","well"] },
+  { s:"The black cat sleeps now.", noun:"cat",  wrong:["sleeps","black","now"] },
+  { s:"My small bird flies high.", noun:"bird", wrong:["flies","small","high"] },
+  { s:"The red fish swims slow.",  noun:"fish", wrong:["swims","red","slow"] },
+  { s:"A good boy jumps up.",      noun:"boy",  wrong:["jumps","good","up"] }
+];
+
+/* ---- 8. Which sentence starts with a capital letter ---- */
+var E1_CAP = [
+  { right:"The sun is hot.", wrong:["the dog ran.","my cat naps.","we like it."] },
+  { right:"We play ball.",   wrong:["i see a cat.","she is nice.","they run fast."] },
+  { right:"My dog is big.",  wrong:["the bird sings.","a boy jumps.","he can run."] },
+  { right:"I like cake.",    wrong:["we go home.","she is sad.","the cup is full."] },
+  { right:"She has a hat.",  wrong:["my mom cooks.","a cat sleeps.","the fish swims."] },
+  { right:"They are kind.",  wrong:["i am happy.","he is tall.","we eat lunch."] }
+];
+
+/* ---- 9. Correct end mark ---- */
+var E1_MARKS = [".","?","!",","];
+var E1_ENDMARK = [
+  { t:"How are you",         m:"?", why:"This sentence asks a question, so it ends with a question mark." },
+  { t:"What is your name",   m:"?", why:"This sentence asks a question, so it ends with a question mark." },
+  { t:"Do you like cake",    m:"?", why:"This sentence asks a question, so it ends with a question mark." },
+  { t:"Where is my hat",     m:"?", why:"This sentence asks a question, so it ends with a question mark." },
+  { t:"I like ice cream",    m:".", why:"This sentence tells us something, so it ends with a period." },
+  { t:"The dog is big",      m:".", why:"This sentence tells us something, so it ends with a period." },
+  { t:"We go to school",     m:".", why:"This sentence tells us something, so it ends with a period." },
+  { t:"Watch out",           m:"!", why:"This sentence shows strong feeling, so it ends with an exclamation mark." },
+  { t:"Wow, that is huge",   m:"!", why:"This sentence shows strong feeling, so it ends with an exclamation mark." },
+  { t:"Help me now",         m:"!", why:"This sentence shows strong feeling, so it ends with an exclamation mark." }
+];
+
+/* ---- 10. Which word completes the sentence (sight words) ---- */
+var E1_CLOZE = [
+  { s:"I ___ a dog.",      a:"see",  w:["so","up","at"],   full:"I see a dog." },
+  { s:"The cat is ___.",   a:"big",  w:["run","and","see"],full:"The cat is big." },
+  { s:"We ___ to school.", a:"go",   w:["is","am","the"],  full:"We go to school." },
+  { s:"She ___ happy.",    a:"is",   w:["go","and","the"], full:"She is happy." },
+  { s:"I can ___.",        a:"run",  w:["the","and","is"], full:"I can run." },
+  { s:"He ___ a hat.",     a:"has",  w:["and","the","up"], full:"He has a hat." },
+  { s:"They ___ here.",    a:"are",  w:["is","am","the"],  full:"They are here." },
+  { s:"Look ___ me.",      a:"at",   w:["is","and","the"], full:"Look at me." },
+  { s:"It is ___ dog.",    a:"my",   w:["go","is","and"],  full:"It is my dog." },
+  { s:"We ___ cake.",      a:"like", w:["is","the","at"],  full:"We like cake." }
+];
+
+BANKS.english['1'] = {
+  label: "Grade 1 English",
+  gens: [
+
+    /* 1. Beginning sound */
+    function(){
+      var it = pick(E1_BEGIN);
+      return {
+        topic:"Beginning Sound",
+        q:"Which word begins with the letter <b>"+it.letter+"</b>?",
+        options:E1_opts(it.word, it.wrong),
+        a:it.word,
+        steps:["'"+it.word+"' starts with the letter "+it.letter+", so it begins with the "+it.letter+" sound."],
+        say:"Which word begins with the letter "+it.letter+"?"
+      };
+    },
+
+    /* 2. Ending sound */
+    function(){
+      var it = pick(E1_END);
+      return {
+        topic:"Ending Sound",
+        q:"Which word ends with the letter <b>"+it.letter+"</b>?",
+        options:E1_opts(it.word, it.wrong),
+        a:it.word,
+        steps:["'"+it.word+"' ends with the letter "+it.letter+", so it has the "+it.letter+" ending sound."],
+        say:"Which word ends with the letter "+it.letter+"?"
+      };
+    },
+
+    /* 3. Short vowel sound */
+    function(){
+      var it = pick(E1_VOWEL);
+      return {
+        topic:"Short Vowel",
+        q:"Which word has the short <b>"+it.v+"</b> sound, like in <i>"+it.ex+"</i>?",
+        options:E1_opts(it.word, it.wrong),
+        a:it.word,
+        steps:["'"+it.word+"' has the short "+it.v+" sound, just like the word "+it.ex+"."],
+        say:"Which word has the short "+it.v+" sound, like in "+it.ex+"?"
+      };
+    },
+
+    /* 4. Rhyming words */
+    function(){
+      var it = pick(E1_RHYME);
+      return {
+        topic:"Rhyming Words",
+        q:"Which word rhymes with <b>"+it.base+"</b>?",
+        options:E1_opts(it.rhyme, it.wrong),
+        a:it.rhyme,
+        steps:["'"+it.rhyme+"' rhymes with '"+it.base+"' because they end with the same sound."],
+        say:"Which word rhymes with "+it.base+"?"
+      };
+    },
+
+    /* 5. Consonant blends */
+    function(){
+      var it = pick(E1_BLEND);
+      return {
+        topic:"Blends",
+        q:"Which word begins with the blend <b>"+it.bl+"</b>?",
+        options:E1_opts(it.word, it.wrong),
+        a:it.word,
+        steps:["'"+it.word+"' begins with the "+it.bl+" blend, where you blend both letters together."],
+        say:"Which word begins with the blend "+it.bl+"?"
+      };
+    },
+
+    /* 6. Plural -s */
+    function(){
+      var sing = pick(E1_PLURAL);
+      var plural = sing+"s";
+      var last = sing.charAt(sing.length-1);
+      var wrong = [sing, sing+"z", sing+last]; /* clearly-wrong, never real plurals */
+      return {
+        topic:"Plurals",
+        q:"One <b>"+sing+"</b>, two ____?",
+        options:E1_opts(plural, wrong),
+        a:plural,
+        steps:["To show more than one "+sing+", we add s to make "+plural+"."],
+        say:"One "+sing+", two what?"
+      };
+    },
+
+    /* 7. Naming words (nouns) */
+    function(){
+      var it = pick(E1_NOUN);
+      return {
+        topic:"Naming Words",
+        q:"Which word is the <b>naming word</b> (names a person, animal, or thing) in: <i>"+it.s+"</i>?",
+        options:E1_opts(it.noun, it.wrong),
+        a:it.noun,
+        steps:["'"+it.noun+"' is the naming word because it names an animal, person, or thing. The other words describe it or tell what it does."],
+        say:"Which word is the naming word in: "+it.s
+      };
+    },
+
+    /* 8. Capital letter at the start */
+    function(){
+      var it = pick(E1_CAP);
+      return {
+        topic:"Capital Letters",
+        q:"Which sentence starts with a <b>capital letter</b> the correct way?",
+        options:E1_opts(it.right, it.wrong),
+        a:it.right,
+        steps:["Every sentence must begin with a capital letter, and '"+it.right+"' starts with a capital."],
+        say:"Which sentence starts with a capital letter the correct way?"
+      };
+    },
+
+    /* 9. Correct end mark */
+    function(){
+      var it = pick(E1_ENDMARK);
+      var pool = E1_MARKS.filter(function(x){ return x!==it.m; });
+      return {
+        topic:"End Marks",
+        q:"Which mark finishes this sentence? <i>"+it.t+" ___</i>",
+        options:E1_opts(it.m, pool),
+        a:it.m,
+        steps:[it.why],
+        say:"Which end mark finishes this sentence: "+it.t+"? A period, a question mark, or an exclamation mark?"
+      };
+    },
+
+    /* 10. Which word completes the sentence (sight words) */
+    function(){
+      var it = pick(E1_CLOZE);
+      return {
+        topic:"Finish the Sentence",
+        q:"Which word finishes the sentence? <i>"+it.s+"</i>",
+        options:E1_opts(it.a, it.w),
+        a:it.a,
+        steps:["'"+it.a+"' is the word that makes the sentence make sense: "+it.full],
+        say:"Which word finishes the sentence: "+it.s.replace("___","blank").replace(/\.$/,"")+"?"
+      };
+    }
+
+  ]
+};
+
+/* ===== seed: BANKS.english['6'] ===== */
+/* Learning Live — Grade 6 English question bank.
+   Uses ONLY the global helpers: R, Rnz, pick, shuffle, repeatStr, numOpts, wordOpts.
+   All module-level names are prefixed E6_ to stay unique. */
+
+function E6_say(s){
+  return String(s)
+    .replace(/<[^>]+>/g, "")
+    .replace(/[“”‘’]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/* ---------- 1) Vocabulary in context ---------- */
+var E6_VOCAB = [
+  { q:"In the sentence, <i>“The <b>diligent</b> student checked her work twice before turning it in,”</i> what does <b>diligent</b> mean?",
+    a:"hardworking and careful", wrong:["lazy and careless","loud and rude","sleepy and bored"],
+    exp:"Checking her work twice shows she is <b>hardworking and careful</b>, which is what <i>diligent</i> means." },
+  { q:"In the sentence, <i>“After the heavy rains, food was <b>abundant</b> and no one went hungry,”</i> what does <b>abundant</b> mean?",
+    a:"present in large amounts", wrong:["very scarce","spoiled and rotten","hard to cook"],
+    exp:"No one went hungry because there was plenty, so <i>abundant</i> means <b>present in large amounts</b>." },
+  { q:"In the sentence, <i>“He was <b>reluctant</b> to try the spicy dish and pushed the plate away,”</i> what does <b>reluctant</b> mean?",
+    a:"unwilling to do something", wrong:["eager and excited","extremely hungry","very grateful"],
+    exp:"Pushing the plate away shows he was <b>unwilling</b>, so that is what <i>reluctant</i> means." },
+  { q:"In the sentence, <i>“Copying the long list by hand was a <b>tedious</b> task,”</i> what does <b>tedious</b> mean?",
+    a:"long, dull, and tiresome", wrong:["quick and easy","exciting and fun","loud and messy"],
+    exp:"A long copying task that drags on is <b>dull and tiresome</b>, the meaning of <i>tedious</i>." },
+  { q:"In the sentence, <i>“The explorers crossed the <b>vast</b> desert that stretched for hundreds of miles,”</i> what does <b>vast</b> mean?",
+    a:"very large in size", wrong:["very small","very cold","very wet"],
+    exp:"A desert stretching for hundreds of miles is <b>very large</b>, which is what <i>vast</i> means." },
+  { q:"In the sentence, <i>“The <b>courteous</b> waiter greeted every guest with a smile,”</i> what does <b>courteous</b> mean?",
+    a:"polite and respectful", wrong:["rude and unkind","tired and slow","silly and careless"],
+    exp:"Greeting guests warmly shows the waiter is <b>polite and respectful</b>, the meaning of <i>courteous</i>." },
+  { q:"In the sentence, <i>“The speaker's <b>monotonous</b> voice never changed, and soon the crowd grew sleepy,”</i> what does <b>monotonous</b> mean?",
+    a:"dull and unchanging", wrong:["loud and cheerful","sweet and musical","sharp and angry"],
+    exp:"A voice that never changes is <b>dull and unchanging</b>, which is what <i>monotonous</i> means." },
+  { q:"In the sentence, <i>“Despite many failures, the <b>persistent</b> inventor kept trying until it worked,”</i> what does <b>persistent</b> mean?",
+    a:"refusing to give up", wrong:["quick to quit","easily scared","very forgetful"],
+    exp:"Someone who keeps trying after failing is <b>refusing to give up</b>, the meaning of <i>persistent</i>." },
+  { q:"In the sentence, <i>“The <b>immense</b> ship was taller than a ten-story building,”</i> what does <b>immense</b> mean?",
+    a:"extremely large", wrong:["very light","very old","very fast"],
+    exp:"A ship taller than a ten-story building is <b>extremely large</b>, which is what <i>immense</i> means." }
+];
+function E6_genVocab(){
+  var it = pick(E6_VOCAB);
+  return { topic:"Vocabulary in Context", q:it.q,
+    options:shuffle(wordOpts(it.a, it.wrong)), a:it.a,
+    steps:[it.exp], say:E6_say(it.q) };
+}
+
+/* ---------- 2) Greek & Latin roots and affixes ---------- */
+var E6_ROOTS = [
+  { q:"The Latin root <b>“aud”</b> (as in <i>audible</i>) means —", a:"to hear", wrong:["to see","to write","to break"],
+    exp:"<i>Aud</i> means <b>to hear</b>, so something <i>audible</i> can be heard." },
+  { q:"The Latin root <b>“spect”</b> (as in <i>spectator</i>) means —", a:"to look or watch", wrong:["to run","to carry","to sleep"],
+    exp:"<i>Spect</i> means <b>to look or watch</b>, so a <i>spectator</i> watches an event." },
+  { q:"The Latin root <b>“dict”</b> (as in <i>predict</i>) means —", a:"to say or speak", wrong:["to build","to hear","to throw"],
+    exp:"<i>Dict</i> means <b>to say or speak</b>, so to <i>predict</i> is to say what will happen." },
+  { q:"The Latin root <b>“scrib / script”</b> (as in <i>manuscript</i>) means —", a:"to write", wrong:["to read aloud","to paint","to measure"],
+    exp:"<i>Scrib</i> or <i>script</i> means <b>to write</b>, so a <i>manuscript</i> is a written document." },
+  { q:"The Latin root <b>“struct”</b> (as in <i>construct</i>) means —", a:"to build", wrong:["to destroy","to float","to count"],
+    exp:"<i>Struct</i> means <b>to build</b>, so to <i>construct</i> is to build something." },
+  { q:"The Latin root <b>“rupt”</b> (as in <i>interrupt</i>) means —", a:"to break", wrong:["to join","to grow","to shine"],
+    exp:"<i>Rupt</i> means <b>to break</b>, so to <i>interrupt</i> is to break into what is happening." },
+  { q:"The Greek root <b>“chrono”</b> (as in <i>chronological</i>) means —", a:"time", wrong:["sound","distance","color"],
+    exp:"<i>Chrono</i> means <b>time</b>, so <i>chronological</i> order is time order." },
+  { q:"The Greek root <b>“therm”</b> (as in <i>thermometer</i>) means —", a:"heat", wrong:["light","water","weight"],
+    exp:"<i>Therm</i> means <b>heat</b>, so a <i>thermometer</i> measures heat (temperature)." },
+  { q:"The Greek root <b>“phon”</b> (as in <i>microphone</i>) means —", a:"sound", wrong:["smell","motion","sight"],
+    exp:"<i>Phon</i> means <b>sound</b>, so a <i>microphone</i> picks up sound." },
+  { q:"The prefix <b>“mis-”</b> (as in <i>misjudge</i>) means —", a:"wrong or badly", wrong:["again","before","under"],
+    exp:"The prefix <i>mis-</i> means <b>wrong or badly</b>, so to <i>misjudge</i> is to judge wrongly." },
+  { q:"The prefix <b>“sub-”</b> (as in <i>submarine</i>) means —", a:"under or below", wrong:["above","around","again"],
+    exp:"The prefix <i>sub-</i> means <b>under or below</b>, so a <i>submarine</i> travels under the water." },
+  { q:"The prefix <b>“trans-”</b> (as in <i>transport</i>) means —", a:"across", wrong:["against","without","after"],
+    exp:"The prefix <i>trans-</i> means <b>across</b>, so to <i>transport</i> is to carry across a distance." },
+  { q:"The prefix <b>“inter-”</b> (as in <i>interact</i>) means —", a:"between or among", wrong:["below","too much","not"],
+    exp:"The prefix <i>inter-</i> means <b>between or among</b>, so to <i>interact</i> is to act between people." },
+  { q:"The suffix <b>“-able”</b> (as in <i>readable</i>) means —", a:"able to be", wrong:["full of","without","one who"],
+    exp:"The suffix <i>-able</i> means <b>able to be</b>, so something <i>readable</i> is able to be read." },
+  { q:"The suffix <b>“-ist”</b> (as in <i>scientist</i>) means —", a:"a person who does something", wrong:["without","study of","before"],
+    exp:"The suffix <i>-ist</i> means <b>a person who does something</b>, so a <i>scientist</i> is a person who does science." },
+  { q:"The suffix <b>“-ology”</b> (as in <i>geology</i>) means —", a:"the study of", wrong:["the fear of","the lack of","the maker of"],
+    exp:"The suffix <i>-ology</i> means <b>the study of</b>, so <i>geology</i> is the study of the earth." }
+];
+function E6_genRoots(){
+  var it = pick(E6_ROOTS);
+  return { topic:"Greek & Latin Roots and Affixes", q:it.q,
+    options:shuffle(wordOpts(it.a, it.wrong)), a:it.a,
+    steps:[it.exp], say:E6_say(it.q) };
+}
+
+/* ---------- 3) Figurative language — identify which ---------- */
+var E6_FIG_TYPES = ["Simile","Metaphor","Personification","Idiom","Hyperbole"];
+var E6_FIG = [
+  { s:"The lake was as smooth as glass in the morning.", a:"Simile",
+    exp:"It compares the lake to glass using the word <i>as</i>, so it is a <b>simile</b>." },
+  { s:"My grandfather is a walking encyclopedia of old stories.", a:"Metaphor",
+    exp:"It says a person <i>is</i> an encyclopedia, with no <i>like</i> or <i>as</i>, so it is a <b>metaphor</b>." },
+  { s:"The thunder grumbled angrily over the hills.", a:"Personification",
+    exp:"Thunder cannot really grumble angrily; giving a human action to it makes this <b>personification</b>." },
+  { s:"I have a mountain of homework to finish tonight.", a:"Hyperbole",
+    exp:"No one truly has a mountain of homework; it is an obvious exaggeration, which is <b>hyperbole</b>." },
+  { s:"When the test was cancelled, she was over the moon.", a:"Idiom",
+    exp:"No one is literally over the moon; the saying means very happy, so it is an <b>idiom</b>." },
+  { s:"The sun smiled down on the cheerful picnic.", a:"Personification",
+    exp:"The sun cannot smile like a person; giving it a human action is <b>personification</b>." },
+  { s:"His courage was a shield that protected the whole team.", a:"Metaphor",
+    exp:"It calls his courage a shield directly, with no <i>like</i> or <i>as</i>, so it is a <b>metaphor</b>." },
+  { s:"The crowd was as loud as a roaring jet engine.", a:"Simile",
+    exp:"It compares the crowd to a jet engine using <i>as</i>, so it is a <b>simile</b>." },
+  { s:"I have told you a thousand times to lock the door!", a:"Hyperbole",
+    exp:"It was not really said a thousand times; the extreme exaggeration makes it <b>hyperbole</b>." },
+  { s:"After practice, let's hit the books before the big exam.", a:"Idiom",
+    exp:"You do not really hit the books; the saying means to study, so it is an <b>idiom</b>." },
+  { s:"The old gate screamed as the wind pushed it open.", a:"Personification",
+    exp:"A gate cannot scream like a person; giving it a human sound is <b>personification</b>." },
+  { s:"Her eyes sparkled like two bright diamonds.", a:"Simile",
+    exp:"It compares her eyes to diamonds using the word <i>like</i>, so it is a <b>simile</b>." }
+];
+function E6_genFig(){
+  var it = pick(E6_FIG);
+  var q = "Which kind of figurative language is used in: <i>“"+it.s+"”</i>";
+  return { topic:"Figurative Language", q:q,
+    options:shuffle(wordOpts(it.a, E6_FIG_TYPES)), a:it.a,
+    steps:[it.exp], say:E6_say("Which kind of figurative language is used in: "+it.s) };
+}
+
+/* ---------- 4) Parts of speech (incl. pronoun, preposition, conjunction) ---------- */
+var E6_POS_POOL = ["noun","pronoun","verb","adjective","adverb","preposition","conjunction","interjection"];
+var E6_POS = [
+  { s:"She handed the gift to <b>him</b>.", w:"him", a:"pronoun",
+    exp:"<b>Him</b> takes the place of a person's name, so it is a <b>pronoun</b>." },
+  { s:"The cat slept <b>under</b> the warm blanket.", w:"under", a:"preposition",
+    exp:"<b>Under</b> shows the position of the cat and begins a phrase, so it is a <b>preposition</b>." },
+  { s:"I wanted to go, <b>but</b> it started to rain.", w:"but", a:"conjunction",
+    exp:"<b>But</b> joins two ideas that contrast, so it is a <b>conjunction</b>." },
+  { s:"The <b>brave</b> firefighter rescued the kitten.", w:"brave", a:"adjective",
+    exp:"<b>Brave</b> describes the firefighter (a noun), so it is an <b>adjective</b>." },
+  { s:"The turtle moved <b>slowly</b> across the road.", w:"slowly", a:"adverb",
+    exp:"<b>Slowly</b> tells how the turtle moved (a verb), so it is an <b>adverb</b>." },
+  { s:"<b>They</b> cheered loudly for the home team.", w:"They", a:"pronoun",
+    exp:"<b>They</b> stands in for the people cheering, so it is a <b>pronoun</b>." },
+  { s:"We hiked <b>through</b> the national park.", w:"through", a:"preposition",
+    exp:"<b>Through</b> shows direction and begins a phrase, so it is a <b>preposition</b>." },
+  { s:"You may choose tea <b>or</b> coffee.", w:"or", a:"conjunction",
+    exp:"<b>Or</b> joins two choices, so it is a <b>conjunction</b>." },
+  { s:"The tourists admired the <b>ancient</b> ruins.", w:"ancient", a:"adjective",
+    exp:"<b>Ancient</b> describes the ruins (a noun), so it is an <b>adjective</b>." },
+  { s:"<b>Wow</b>, that was an amazing goal!", w:"Wow", a:"interjection",
+    exp:"<b>Wow</b> expresses sudden feeling and stands apart, so it is an <b>interjection</b>." },
+  { s:"The scientist carefully <b>recorded</b> the data.", w:"recorded", a:"verb",
+    exp:"<b>Recorded</b> shows the action the scientist did, so it is a <b>verb</b>." },
+  { s:"The eager <b>puppy</b> chased its tail.", w:"puppy", a:"noun",
+    exp:"<b>Puppy</b> names an animal, a person, place, or thing, so it is a <b>noun</b>." }
+];
+function E6_genPOS(){
+  var it = pick(E6_POS);
+  var q = "What part of speech is the bold word in: <i>“"+it.s+"”</i>";
+  return { topic:"Parts of Speech", q:q,
+    options:shuffle(wordOpts(it.a, E6_POS_POOL)), a:it.a,
+    steps:[it.exp], say:E6_say("What part of speech is the word "+it.w+" in this sentence: "+it.s) };
+}
+
+/* ---------- 5) Subject–verb agreement ---------- */
+var E6_SVA = [
+  { q:"Choose the correct verb: <i>“Each of the players ___ a locker.”</i>",
+    a:"has", wrong:["have","having","were"],
+    exp:"<i>Each</i> is singular, so it takes the singular verb <b>has</b>, even though <i>players</i> is plural." },
+  { q:"Choose the correct verb: <i>“The bouquet of roses ___ beautiful.”</i>",
+    a:"is", wrong:["are","were","being"],
+    exp:"The subject is <i>bouquet</i> (singular); <i>of roses</i> is just a phrase, so the verb is <b>is</b>." },
+  { q:"Choose the correct verb: <i>“Neither the coach nor the players ___ ready.”</i>",
+    a:"are", wrong:["is","was","has"],
+    exp:"With <i>neither…nor</i>, the verb agrees with the nearer subject <i>players</i> (plural), so it is <b>are</b>." },
+  { q:"Choose the correct verb: <i>“The news ___ good this morning.”</i>",
+    a:"is", wrong:["are","were","have"],
+    exp:"<i>News</i> looks plural but names one thing, so it takes the singular verb <b>is</b>." },
+  { q:"Choose the correct verb: <i>“Here ___ the keys you lost.”</i>",
+    a:"are", wrong:["is","was","be"],
+    exp:"The real subject is <i>keys</i> (plural), so the verb is <b>are</b>." },
+  { q:"Choose the correct verb: <i>“Mathematics ___ a challenging subject.”</i>",
+    a:"is", wrong:["are","were","have"],
+    exp:"<i>Mathematics</i> names one subject, so it takes the singular verb <b>is</b>." },
+  { q:"Choose the correct verb: <i>“One of the windows ___ broken.”</i>",
+    a:"is", wrong:["are","were","break"],
+    exp:"The subject is <i>one</i> (singular), so the verb is <b>is</b>, even though <i>windows</i> is plural." },
+  { q:"Choose the correct verb: <i>“The scissors ___ on the desk.”</i>",
+    a:"are", wrong:["is","was","be"],
+    exp:"<i>Scissors</i> is treated as plural, so it takes the plural verb <b>are</b>." }
+];
+function E6_genSVA(){
+  var it = pick(E6_SVA);
+  return { topic:"Subject–Verb Agreement", q:it.q,
+    options:shuffle(wordOpts(it.a, it.wrong)), a:it.a,
+    steps:[it.exp], say:E6_say(it.q) };
+}
+
+/* ---------- 6) Pronoun–antecedent agreement ---------- */
+var E6_PAA = [
+  { q:"Choose the correct pronoun: <i>“When the boy woke up, ___ got ready for school.”</i>",
+    a:"he", wrong:["she","they","it"],
+    exp:"The antecedent <i>boy</i> is singular and male, so the matching pronoun is <b>he</b>." },
+  { q:"Choose the correct pronoun: <i>“Sarah raised ___ hand to answer the question.”</i>",
+    a:"her", wrong:["his","their","its"],
+    exp:"The antecedent <i>Sarah</i> is singular and female, so the matching pronoun is <b>her</b>." },
+  { q:"Choose the correct pronoun: <i>“The puppy chased ___ own tail in circles.”</i>",
+    a:"its", wrong:["it's","his","their"],
+    exp:"The antecedent <i>puppy</i> is a singular animal, so the possessive pronoun is <b>its</b> (not <i>it's</i>, which means <i>it is</i>)." },
+  { q:"Choose the correct pronoun: <i>“The twins shared ___ toys with the younger kids.”</i>",
+    a:"their", wrong:["his","her","its"],
+    exp:"The antecedent <i>twins</i> is plural, so the matching pronoun is <b>their</b>." },
+  { q:"Choose the correct pronoun: <i>“Each of the boys brought ___ own soccer ball.”</i>",
+    a:"his", wrong:["their","her","its"],
+    exp:"<i>Each</i> is singular, and the boys are male, so the matching pronoun is <b>his</b>." },
+  { q:"Choose the correct pronoun: <i>“The students handed in ___ assignments on time.”</i>",
+    a:"their", wrong:["his","her","its"],
+    exp:"The antecedent <i>students</i> is plural, so the matching pronoun is <b>their</b>." },
+  { q:"Choose the correct pronoun: <i>“Marco revises ___ work carefully before turning it in.”</i>",
+    a:"his", wrong:["her","their","its"],
+    exp:"The antecedent <i>Marco</i> is singular and male, so the matching pronoun is <b>his</b>." },
+  { q:"Choose the correct pronoun: <i>“My sister forgot ___ umbrella at home.”</i>",
+    a:"her", wrong:["his","their","its"],
+    exp:"The antecedent <i>sister</i> is singular and female, so the matching pronoun is <b>her</b>." }
+];
+function E6_genPAA(){
+  var it = pick(E6_PAA);
+  return { topic:"Pronoun–Antecedent Agreement", q:it.q,
+    options:shuffle(wordOpts(it.a, it.wrong)), a:it.a,
+    steps:[it.exp], say:E6_say(it.q) };
+}
+
+/* ---------- 7) Punctuation — commas, colon, semicolon ---------- */
+var E6_PUNCT = [
+  { prompt:"Which sentence uses the semicolon correctly?",
+    a:"The sky grew dark; a storm was coming.",
+    wrong:["The sky grew dark, a storm was coming.","The sky grew dark a storm was coming.","The sky grew dark; and a storm was coming."],
+    exp:"A semicolon joins two complete, closely related sentences: <b>The sky grew dark; a storm was coming.</b>" },
+  { prompt:"Which sentence uses the colon correctly?",
+    a:"Pack these for the trip: sunscreen, a hat, and water.",
+    wrong:["Pack these for the trip; sunscreen, a hat, and water.","Pack these for the trip, sunscreen, a hat, and water.","Pack these for the trip sunscreen, a hat, and water."],
+    exp:"A colon comes after a complete sentence to introduce a list: <b>…for the trip: sunscreen, a hat, and water.</b>" },
+  { prompt:"Which sentence puts the comma in the compound sentence correctly?",
+    a:"We wanted to swim, but the pool was closed.",
+    wrong:["We wanted to swim but the pool was closed.","We wanted to swim, the pool was closed.","We wanted, to swim but the pool was closed."],
+    exp:"Use a comma before the conjunction <i>but</i> when it joins two complete sentences: <b>We wanted to swim, but the pool was closed.</b>" },
+  { prompt:"Which sentence punctuates the introductory part correctly?",
+    a:"After the long meeting, we finally went home.",
+    wrong:["After the long meeting we finally went home.","After, the long meeting we finally went home.","After the long, meeting we finally went home."],
+    exp:"An introductory phrase is followed by a comma: <b>After the long meeting,</b> then the main idea." },
+  { prompt:"Which sentence uses the semicolon and comma correctly?",
+    a:"I studied hard; therefore, I passed the test.",
+    wrong:["I studied hard, therefore I passed the test.","I studied hard therefore I passed the test.","I studied hard, therefore, I passed the test."],
+    exp:"Use a semicolon before <i>therefore</i> and a comma after it: <b>I studied hard; therefore, I passed the test.</b>" },
+  { prompt:"Which sentence uses commas in a series correctly?",
+    a:"We visited Paris, Rome, and Madrid.",
+    wrong:["We visited Paris Rome and Madrid.","We visited, Paris, Rome and Madrid.","We visited Paris, Rome and, Madrid."],
+    exp:"In a list, a comma separates each item: <b>Paris, Rome, and Madrid.</b>" },
+  { prompt:"Which sentence sets off the extra information correctly?",
+    a:"My friend, a talented artist, painted the mural.",
+    wrong:["My friend a talented artist painted the mural.","My friend, a talented artist painted the mural.","My friend a talented artist, painted the mural."],
+    exp:"Commas go on both sides of an appositive that renames the noun: <b>My friend, a talented artist, painted the mural.</b>" }
+];
+function E6_genPunct(){
+  var it = pick(E6_PUNCT);
+  return { topic:"Punctuation", q:it.prompt,
+    options:shuffle(wordOpts(it.a, it.wrong)), a:it.a,
+    steps:[it.exp], say:E6_say(it.prompt) };
+}
+
+/* ---------- 8) Main idea / central idea ---------- */
+var E6_MAIN = [
+  { s:"Honeybees do far more than make honey. As they move from flower to flower, they carry pollen that helps plants grow. Many of the fruits and vegetables we eat depend on this work.",
+    a:"Bees are important because they help many plants grow.",
+    wrong:["Honey tastes sweet on warm toast.","Bees can sting people who bother them.","Flowers come in many bright colors."],
+    exp:"Every sentence points to how bees help plants and our food, so the central idea is that <b>bees are important because they help many plants grow</b>." },
+  { s:"At first, learning to ride a bike felt impossible for Jamal. He fell again and again, but he refused to quit. After a week of trying, he was finally gliding down the street on his own.",
+    a:"Not giving up can help you reach a hard goal.",
+    wrong:["Bikes are expensive to repair.","Jamal lives on a very quiet street.","Helmets keep riders safe from injury."],
+    exp:"Jamal kept trying after falling and then succeeded, so the central idea is that <b>not giving up can help you reach a hard goal</b>." },
+  { s:"Rainforests are home to more kinds of plants and animals than any other place on Earth. Scientists believe millions of species live there, and many have not even been discovered yet.",
+    a:"Rainforests hold an amazing variety of living things.",
+    wrong:["Rainforests get rain almost every day.","Scientists wear boots in the jungle.","Some trees grow very tall and wide."],
+    exp:"The passage focuses on how many kinds of life rainforests contain, so the central idea is that <b>rainforests hold an amazing variety of living things</b>." },
+  { s:"The invention of the printing press changed the world. Before it, books were copied slowly by hand, and very few people owned them. Afterward, books could be made quickly, and reading spread to ordinary people.",
+    a:"The printing press made books far easier to produce and share.",
+    wrong:["Books used to be copied by monks.","Reading is a fun way to relax.","Old books were written in Latin."],
+    exp:"The passage contrasts life before and after the press to show its effect, so the central idea is that <b>the printing press made books far easier to produce and share</b>." },
+  { s:"Sea turtles face many dangers today. Plastic trash fills their ocean home, and bright lights on the beach confuse their babies. Luckily, many people now work to clean beaches and protect turtle nests.",
+    a:"People are working to protect sea turtles from the dangers they face.",
+    wrong:["Sea turtles can live for many years.","Beaches are crowded in the summer.","Turtles lay their eggs in the sand."],
+    exp:"The passage names the turtles' dangers and the efforts to help them, so the central idea is that <b>people are working to protect sea turtles from the dangers they face</b>." }
+];
+function E6_genMain(){
+  var it = pick(E6_MAIN);
+  var q = "What is the central idea of this passage? <i>“"+it.s+"”</i>";
+  return { topic:"Main Idea / Central Idea", q:q,
+    options:shuffle(wordOpts(it.a, it.wrong)), a:it.a,
+    steps:[it.exp], say:E6_say("What is the central idea of this passage? "+it.s) };
+}
+
+/* ---------- 9) Author's purpose ---------- */
+var E6_PURP_UNIV = [
+  "To persuade the reader to take an action or share a view",
+  "To inform the reader with facts and information",
+  "To entertain the reader with an enjoyable story",
+  "To explain the steps in a process"
+];
+var E6_PURPOSE = [
+  { s:"You should recycle every bottle and can you use. Our planet is counting on us, and small choices make a big difference. Start today!",
+    a:"To persuade the reader to take an action or share a view",
+    exp:"The writer urges you to recycle and act, so the purpose is <b>to persuade</b>." },
+  { s:"The Amazon River is one of the longest rivers in the world. It flows through South America and is home to thousands of kinds of fish.",
+    a:"To inform the reader with facts and information",
+    exp:"The passage gives true facts about the river, so the purpose is <b>to inform</b>." },
+  { s:"The grumpy dragon tried to sneeze quietly, but out burst a huge flame that turned his whole breakfast into crispy toast.",
+    a:"To entertain the reader with an enjoyable story",
+    exp:"The silly, made-up scene is meant to amuse you, so the purpose is <b>to entertain</b>." },
+  { s:"To plant a seed, first dig a small hole. Next, drop in the seed and cover it with soil. Finally, water it gently each day.",
+    a:"To explain the steps in a process",
+    exp:"The passage gives ordered steps for how to do something, so the purpose is <b>to explain a process</b>." },
+  { s:"Everyone should read for twenty minutes a day. It builds your vocabulary, sparks your imagination, and makes you a sharper thinker. Give it a try!",
+    a:"To persuade the reader to take an action or share a view",
+    exp:"The writer is trying to convince you to read daily, so the purpose is <b>to persuade</b>." },
+  { s:"Volcanoes form when melted rock, called magma, rises toward the surface. When it finally erupts, the magma is known as lava.",
+    a:"To inform the reader with facts and information",
+    exp:"These are true facts about how volcanoes work, so the purpose is <b>to inform</b>." }
+];
+function E6_genPurpose(){
+  var it = pick(E6_PURPOSE);
+  var q = "What is the author's main purpose? <i>“"+it.s+"”</i>";
+  return { topic:"Author's Purpose", q:q,
+    options:shuffle(wordOpts(it.a, E6_PURP_UNIV)), a:it.a,
+    steps:[it.exp], say:E6_say("What is the author's main purpose? "+it.s) };
+}
+
+/* ---------- 10) Context-clue word meaning ---------- */
+var E6_CLUE = [
+  { s:"The hikers were <b>famished</b> after the long trek, so they ate everything in their packs.", word:"famished",
+    a:"very hungry", wrong:["very full","very bored","very cold"],
+    exp:"The clue is that they <i>ate everything</i> after a long trek, so <b>famished</b> must mean <b>very hungry</b>." },
+  { s:"Unlike his talkative sister, Ben was <b>reticent</b> and rarely spoke in class.", word:"reticent",
+    a:"quiet and reserved", wrong:["loud and chatty","angry and rude","kind and generous"],
+    exp:"The contrast word <i>unlike</i> his talkative sister shows <b>reticent</b> means <b>quiet and reserved</b>." },
+  { s:"The coach was <b>elated</b> — thrilled and overjoyed — when the team won the title.", word:"elated",
+    a:"extremely happy", wrong:["very tired","slightly annoyed","a little worried"],
+    exp:"The restated clue <i>thrilled and overjoyed</i> tells you <b>elated</b> means <b>extremely happy</b>." },
+  { s:"The desert was <b>arid</b>, with no rain for months and dry, cracked ground.", word:"arid",
+    a:"very dry", wrong:["very wet","very green","very cold"],
+    exp:"The clues <i>no rain</i> and <i>dry, cracked ground</i> show that <b>arid</b> means <b>very dry</b>." },
+  { s:"Because the directions were so <b>ambiguous</b>, we could not tell which way to turn.", word:"ambiguous",
+    a:"unclear or confusing", wrong:["simple and clear","short and quick","loud and rude"],
+    exp:"If they could not tell which way to turn, the directions were <b>unclear or confusing</b>, the meaning of <b>ambiguous</b>." },
+  { s:"The detective called the smudge <b>irrelevant</b> because it had nothing to do with the case.", word:"irrelevant",
+    a:"not related to the matter", wrong:["very important","clearly guilty","well hidden"],
+    exp:"The clue <i>nothing to do with the case</i> shows <b>irrelevant</b> means <b>not related to the matter</b>." },
+  { s:"The soup was so <b>bland</b> that we added salt, pepper, and herbs to give it some flavor.", word:"bland",
+    a:"lacking flavor", wrong:["very spicy","too sweet","very hot"],
+    exp:"They added seasonings to give it flavor, so <b>bland</b> must mean <b>lacking flavor</b>." },
+  { s:"The teacher's <b>lucid</b> explanation was so clear that everyone understood it right away.", word:"lucid",
+    a:"clear and easy to understand", wrong:["long and boring","harsh and angry","soft and quiet"],
+    exp:"The clue <i>so clear that everyone understood</i> shows <b>lucid</b> means <b>clear and easy to understand</b>." }
+];
+function E6_genClue(){
+  var it = pick(E6_CLUE);
+  var q = "Use the context clues. What does <b>"+it.word+"</b> mean in: <i>“"+it.s+"”</i>";
+  return { topic:"Context Clues", q:q,
+    options:shuffle(wordOpts(it.a, it.wrong)), a:it.a,
+    steps:[it.exp], say:E6_say("Use the context clues. What does the word "+it.word+" mean in this sentence: "+it.s) };
+}
+
+/* ---------- 11) Denotation vs connotation ---------- */
+var E6_CONN = [
+  { q:"Which word has the <b>most positive</b> feel?", a:"thrifty", wrong:["cheap","stingy","miserly"],
+    exp:"All four describe someone careful with money, but <b>thrifty</b> sounds positive, while <i>cheap, stingy,</i> and <i>miserly</i> sound negative." },
+  { q:"Which word has the <b>most negative</b> feel?", a:"skinny", wrong:["slim","slender","trim"],
+    exp:"<i>Slim, slender,</i> and <i>trim</i> are flattering, but <b>skinny</b> carries a negative, unhealthy feel." },
+  { q:"Which word has the <b>most positive</b> feel?", a:"curious", wrong:["nosy","prying","meddlesome"],
+    exp:"All describe interest in others, but <b>curious</b> sounds positive, while <i>nosy, prying,</i> and <i>meddlesome</i> sound negative." },
+  { q:"Which word has the <b>most negative</b> feel?", a:"cheap", wrong:["affordable","inexpensive","economical"],
+    exp:"<i>Affordable, inexpensive,</i> and <i>economical</i> sound positive about low cost, but <b>cheap</b> hints at poor quality." },
+  { q:"Which word has the <b>most positive</b> feel?", a:"confident", wrong:["arrogant","cocky","boastful"],
+    exp:"All describe sureness, but <b>confident</b> sounds positive, while <i>arrogant, cocky,</i> and <i>boastful</i> sound negative." },
+  { q:"Which word has the <b>most positive</b> feel?", a:"youthful", wrong:["childish","immature","babyish"],
+    exp:"All relate to being young, but <b>youthful</b> sounds positive, while <i>childish, immature,</i> and <i>babyish</i> sound negative." },
+  { q:"Which word has the <b>most negative</b> feel?", a:"stubborn", wrong:["determined","persistent","firm"],
+    exp:"<i>Determined, persistent,</i> and <i>firm</i> praise not backing down, but <b>stubborn</b> makes it sound like a fault." },
+  { q:"Which word has the <b>most positive</b> feel?", a:"aroma", wrong:["odor","stench","stink"],
+    exp:"<b>Aroma</b> suggests a pleasant smell, while <i>odor, stench,</i> and <i>stink</i> suggest an unpleasant one." }
+];
+function E6_genConn(){
+  var it = pick(E6_CONN);
+  return { topic:"Denotation vs Connotation", q:it.q,
+    options:shuffle(wordOpts(it.a, it.wrong)), a:it.a,
+    steps:[it.exp], say:E6_say(it.q) };
+}
+
+BANKS.english['6'] = { label:"Grade 6 English", gens:[
+  E6_genVocab,
+  E6_genRoots,
+  E6_genFig,
+  E6_genPOS,
+  E6_genSVA,
+  E6_genPAA,
+  E6_genPunct,
+  E6_genMain,
+  E6_genPurpose,
+  E6_genClue,
+  E6_genConn
+] };
+
+/* ===== seed: BANKS.english['7'] ===== */
+/* Learning Live — Grade 7 English question bank.
+   Uses ONLY the global helpers: R, Rnz, pick, shuffle, repeatStr, numOpts, wordOpts.
+   All module-level names are prefixed E7_ to stay unique. */
+
+function E7_say(s){ return String(s).replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim(); }
+
+/* ---------- 1) Vocabulary in context ---------- */
+var E7_VOCAB = [
+  { q:"In the sentence, <i>“The <b>benevolent</b> stranger paid for the family's groceries without being asked,”</i> what does <b>benevolent</b> mean?",
+    a:"kind and generous", wrong:["cruel and unkind","easily frightened","very clumsy"],
+    exp:"Paying for a stranger's groceries is a <b>kind and generous</b> act, which is the meaning of <i>benevolent</i>." },
+  { q:"In the sentence, <i>“The <b>diligent</b> student checked every answer twice before handing in the test,”</i> what does <b>diligent</b> mean?",
+    a:"hardworking and careful", wrong:["lazy and careless","loud and rude","shy and quiet"],
+    exp:"Checking every answer twice shows someone who is <b>hardworking and careful</b> — that is what <i>diligent</i> means." },
+  { q:"In the sentence, <i>“He was <b>reluctant</b> to jump into the cold pool and stood shivering at the edge,”</i> what does <b>reluctant</b> mean?",
+    a:"unwilling and hesitant", wrong:["eager and willing","bright and cheerful","strong and fast"],
+    exp:"Standing at the edge instead of jumping shows he was <b>unwilling and hesitant</b>, the meaning of <i>reluctant</i>." },
+  { q:"In the sentence, <i>“After the heavy rains, food was <b>abundant</b>, and the market overflowed with fruit,”</i> what does <b>abundant</b> mean?",
+    a:"more than enough", wrong:["scarce and rare","dark and gloomy","small and weak"],
+    exp:"An overflowing market has <b>more than enough</b> food, which is what <i>abundant</i> means." },
+  { q:"In the sentence, <i>“Without repairs, the old bridge began to <b>deteriorate</b> and grow unsafe,”</i> what does <b>deteriorate</b> mean?",
+    a:"to get worse", wrong:["to improve","to disappear","to celebrate"],
+    exp:"A bridge that grows unsafe is getting worse, so <i>deteriorate</i> means <b>to get worse</b>." },
+  { q:"In the sentence, <i>“Her bright yellow coat was <b>conspicuous</b> in the gray crowd,”</i> what does <b>conspicuous</b> mean?",
+    a:"easily noticed", wrong:["hidden and unseen","warm and soft","quick and quiet"],
+    exp:"A bright coat in a gray crowd stands out, so <i>conspicuous</i> means <b>easily noticed</b>." },
+  { q:"In the sentence, <i>“The <b>meticulous</b> watchmaker placed each tiny gear exactly in its spot,”</i> what does <b>meticulous</b> mean?",
+    a:"very careful about details", wrong:["messy and careless","bold and daring","gentle and kind"],
+    exp:"Placing each tiny gear exactly shows someone <b>very careful about details</b>, which is what <i>meticulous</i> means." },
+  { q:"In the sentence, <i>“With dark clouds rolling in, the storm felt <b>inevitable</b>,”</i> what does <b>inevitable</b> mean?",
+    a:"certain to happen", wrong:["easy to avoid","fun and exciting","rare and unusual"],
+    exp:"When nothing can stop the storm, it is <b>certain to happen</b> — that is what <i>inevitable</i> means." },
+  { q:"In the sentence, <i>“She gave a <b>candid</b> answer, telling the truth even though it was hard,”</i> what does <b>candid</b> mean?",
+    a:"honest and direct", wrong:["dishonest and sneaky","nervous and shy","slow and sleepy"],
+    exp:"Telling the truth plainly is being <b>honest and direct</b>, which is the meaning of <i>candid</i>." },
+  { q:"In the sentence, <i>“He painted a <b>vivid</b> sunset with glowing orange and deep purple,”</i> what does <b>vivid</b> mean?",
+    a:"bright and clear", wrong:["dull and faded","quiet and still","heavy and slow"],
+    exp:"Glowing colors you can picture at once are <b>bright and clear</b>, which is what <i>vivid</i> means." }
+];
+function E7_genVocab(){
+  var it = pick(E7_VOCAB);
+  return { topic:"Vocabulary in Context", q:it.q,
+    options:shuffle(wordOpts(it.a, it.wrong)), a:it.a,
+    steps:[it.exp], say:E7_say(it.q) };
+}
+
+/* ---------- 2) Greek & Latin roots and affixes ---------- */
+var E7_ROOTS = [
+  { q:"The Latin root <b>“bene”</b> (as in <i>benefit</i>) means —", a:"good or well", wrong:["bad","water","far"],
+    exp:"<i>Bene</i> means <b>good or well</b>, so a <i>benefit</i> is something good that helps you." },
+  { q:"The Latin root <b>“mal”</b> (as in <i>malfunction</i>) means —", a:"bad or evil", wrong:["good","light","together"],
+    exp:"<i>Mal</i> means <b>bad or evil</b>, so a <i>malfunction</i> is when something works badly." },
+  { q:"The Greek root <b>“chron”</b> (as in <i>chronological</i>) means —", a:"time", wrong:["distance","color","sound"],
+    exp:"<i>Chron</i> means <b>time</b>, so <i>chronological</i> order means arranged by time." },
+  { q:"The Latin root <b>“dict”</b> (as in <i>dictate</i> or <i>predict</i>) means —", a:"to say or speak", wrong:["to see","to carry","to build"],
+    exp:"<i>Dict</i> means <b>to say or speak</b>, so to <i>dictate</i> is to speak words for someone to write." },
+  { q:"The Latin root <b>“scrib/script”</b> (as in <i>manuscript</i>) means —", a:"to write", wrong:["to read aloud","to erase","to count"],
+    exp:"<i>Scrib/script</i> means <b>to write</b>, so a <i>manuscript</i> is something that was written." },
+  { q:"The Latin root <b>“spect”</b> (as in <i>spectator</i> or <i>inspect</i>) means —", a:"to look or see", wrong:["to hear","to run","to grow"],
+    exp:"<i>Spect</i> means <b>to look or see</b>, so a <i>spectator</i> is someone who watches." },
+  { q:"The Latin root <b>“aud”</b> (as in <i>audible</i> or <i>audience</i>) means —", a:"to hear", wrong:["to see","to touch","to taste"],
+    exp:"<i>Aud</i> means <b>to hear</b>, so an <i>audience</i> is a group that listens." },
+  { q:"The Latin root <b>“cred”</b> (as in <i>credible</i>) means —", a:"to believe or trust", wrong:["to doubt","to break","to jump"],
+    exp:"<i>Cred</i> means <b>to believe or trust</b>, so something <i>credible</i> is easy to believe." },
+  { q:"The prefix <b>“anti-”</b> (as in <i>antifreeze</i>) means —", a:"against", wrong:["for","before","after"],
+    exp:"The prefix <i>anti-</i> means <b>against</b>, so <i>antifreeze</i> works against freezing." },
+  { q:"The prefix <b>“trans-”</b> (as in <i>transport</i>) means —", a:"across", wrong:["under","around","before"],
+    exp:"The prefix <i>trans-</i> means <b>across</b>, so to <i>transport</i> is to carry across a distance." },
+  { q:"The prefix <b>“mono-”</b> (as in <i>monorail</i>) means —", a:"one", wrong:["many","half","none"],
+    exp:"The prefix <i>mono-</i> means <b>one</b>, so a <i>monorail</i> runs on one rail." },
+  { q:"The suffix <b>“-logy”</b> (as in <i>biology</i>) means —", a:"the study of", wrong:["the fear of","the love of","the lack of"],
+    exp:"The suffix <i>-logy</i> means <b>the study of</b>, so <i>biology</i> is the study of life." }
+];
+function E7_genRoots(){
+  var it = pick(E7_ROOTS);
+  return { topic:"Greek & Latin Roots", q:it.q,
+    options:shuffle(wordOpts(it.a, it.wrong)), a:it.a,
+    steps:[it.exp], say:E7_say(it.q) };
+}
+
+/* ---------- 3) Figurative language & literary devices — identify which ---------- */
+var E7_FIG_TYPES = ["Simile","Metaphor","Personification","Hyperbole","Alliteration","Symbolism"];
+var E7_FIG = [
+  { s:"The autumn leaves danced across the sidewalk.", a:"Personification",
+    exp:"Leaves cannot really dance; giving a human action to a non-living thing is <b>personification</b>." },
+  { s:"Her voice is music to my ears.", a:"Metaphor",
+    exp:"It says one thing <i>is</i> another (a voice <i>is</i> music) with no <i>like</i> or <i>as</i>, so it is a <b>metaphor</b>." },
+  { s:"He was as brave as a lion during the storm.", a:"Simile",
+    exp:"It compares two things using <i>as…as</i>, which makes it a <b>simile</b>." },
+  { s:"Peter Piper picked a peck of pickled peppers.", a:"Alliteration",
+    exp:"The same beginning <i>p</i> sound is repeated again and again, which is <b>alliteration</b>." },
+  { s:"I am so hungry I could eat a whole horse.", a:"Hyperbole",
+    exp:"No one truly eats a whole horse; the extreme exaggeration makes it <b>hyperbole</b>." },
+  { s:"The white dove flew over the ceremony, a sign of peace.", a:"Symbolism",
+    exp:"The dove is an object that stands for the idea of peace, which is <b>symbolism</b>." },
+  { s:"The wind howled angrily through the empty streets.", a:"Personification",
+    exp:"Wind cannot feel anger or howl like a person; giving it human feelings is <b>personification</b>." },
+  { s:"She sells seashells by the seashore.", a:"Alliteration",
+    exp:"The repeated beginning <i>s</i> sound makes this line <b>alliteration</b>." },
+  { s:"In the story, the long, dark tunnel stood for the fears the boy had to pass through.", a:"Symbolism",
+    exp:"The tunnel is used to represent the boy's fears, so this is <b>symbolism</b>." },
+  { s:"The whole world is a stage, and we are merely players.", a:"Metaphor",
+    exp:"It calls the world a stage directly, with no <i>like</i> or <i>as</i>, so it is a <b>metaphor</b>." },
+  { s:"Life is like a long and winding road.", a:"Simile",
+    exp:"It compares life to a road using the word <i>like</i>, so it is a <b>simile</b>." },
+  { s:"This backpack weighs a thousand pounds!", a:"Hyperbole",
+    exp:"A backpack does not weigh a thousand pounds; the obvious exaggeration makes it <b>hyperbole</b>." }
+];
+function E7_genFig(){
+  var it = pick(E7_FIG);
+  var q = "Which literary device is used in: <i>“"+it.s+"”</i>";
+  return { topic:"Figurative Language", q:q,
+    options:shuffle(wordOpts(it.a, E7_FIG_TYPES)), a:it.a,
+    steps:[it.exp], say:E7_say("Which literary device is used in: "+it.s) };
+}
+
+/* ---------- 4) Clauses — identify the dependent (subordinate) clause ---------- */
+var E7_CLAUSE = [
+  { s:"Because the rain was heavy, the game was canceled.", a:"Because the rain was heavy",
+    wrong:["the game was canceled","the rain was heavy","the game"],
+    exp:"<b>Because the rain was heavy</b> starts with a subordinating word and cannot stand alone, so it is the dependent clause." },
+  { s:"When the bell rang, the students left the room.", a:"When the bell rang",
+    wrong:["the students left the room","the bell rang","left the room"],
+    exp:"<b>When the bell rang</b> begins with <i>when</i> and cannot stand alone, so it is the dependent clause." },
+  { s:"She smiled although she was nervous.", a:"although she was nervous",
+    wrong:["She smiled","she was nervous","She smiled although"],
+    exp:"<b>Although she was nervous</b> begins with <i>although</i> and cannot stand alone, so it is the dependent clause." },
+  { s:"If you study hard, you will pass the test.", a:"If you study hard",
+    wrong:["you will pass the test","you study hard","you will pass"],
+    exp:"<b>If you study hard</b> begins with <i>if</i> and cannot stand alone, so it is the dependent clause." },
+  { s:"The dog barked until its owner came home.", a:"until its owner came home",
+    wrong:["The dog barked","its owner came home","The dog"],
+    exp:"<b>Until its owner came home</b> begins with <i>until</i> and cannot stand alone, so it is the dependent clause." },
+  { s:"After the movie ended, we walked home together.", a:"After the movie ended",
+    wrong:["we walked home together","the movie ended","walked home"],
+    exp:"<b>After the movie ended</b> begins with <i>after</i> and cannot stand alone, so it is the dependent clause." }
+];
+function E7_genClause(){
+  var it = pick(E7_CLAUSE);
+  var q = "Which group of words is the dependent (subordinate) clause in: <i>“"+it.s+"”</i>";
+  return { topic:"Clauses", q:q,
+    options:shuffle(wordOpts(it.a, it.wrong)), a:it.a,
+    steps:[it.exp], say:E7_say("Which group of words is the dependent clause in: "+it.s) };
+}
+
+/* ---------- 5) Sentence types — simple / compound / complex / compound-complex ---------- */
+var E7_SENT_TYPES = ["Simple","Compound","Complex","Compound-complex"];
+var E7_SENT = [
+  { s:"The bright red car raced down the empty street.", a:"Simple",
+    exp:"It has just one independent clause (one subject and verb), so it is a <b>simple</b> sentence." },
+  { s:"I wanted to go outside, but it was raining hard.", a:"Compound",
+    exp:"Two independent clauses are joined by the coordinating conjunction <i>but</i>, so it is a <b>compound</b> sentence." },
+  { s:"Because she was tired, she went to bed early.", a:"Complex",
+    exp:"It has one dependent clause (<i>Because she was tired</i>) and one independent clause, so it is a <b>complex</b> sentence." },
+  { s:"He studies every night, so he gets good grades.", a:"Compound",
+    exp:"Two independent clauses are joined by the coordinating conjunction <i>so</i>, so it is a <b>compound</b> sentence." },
+  { s:"Maria read a book while her brother watched TV.", a:"Complex",
+    exp:"It has one independent clause and one dependent clause (<i>while her brother watched TV</i>), so it is a <b>complex</b> sentence." },
+  { s:"When the game ended, the fans cheered, and the players celebrated.", a:"Compound-complex",
+    exp:"It has a dependent clause (<i>When the game ended</i>) plus two independent clauses joined by <i>and</i>, so it is a <b>compound-complex</b> sentence." },
+  { s:"We ran all the way to the bus stop.", a:"Simple",
+    exp:"It has only one independent clause, so it is a <b>simple</b> sentence." },
+  { s:"Although it was cold, we went outside, and we built a snowman.", a:"Compound-complex",
+    exp:"It has a dependent clause (<i>Although it was cold</i>) plus two independent clauses joined by <i>and</i>, so it is a <b>compound-complex</b> sentence." },
+  { s:"The sun set, and the first stars appeared in the sky.", a:"Compound",
+    exp:"Two independent clauses are joined by the coordinating conjunction <i>and</i>, so it is a <b>compound</b> sentence." },
+  { s:"After the storm passed, the children played in the puddles.", a:"Complex",
+    exp:"It has one dependent clause (<i>After the storm passed</i>) and one independent clause, so it is a <b>complex</b> sentence." }
+];
+function E7_genSentType(){
+  var it = pick(E7_SENT);
+  var q = "What type of sentence is this: <i>“"+it.s+"”</i>";
+  return { topic:"Sentence Types", q:q,
+    options:shuffle(wordOpts(it.a, E7_SENT_TYPES)), a:it.a,
+    steps:[it.exp], say:E7_say("What type of sentence is this: "+it.s) };
+}
+
+/* ---------- 6) Prepositional phrases ---------- */
+var E7_PREP = [
+  { s:"The hikers rested beside the rushing river.", a:"beside the rushing river",
+    wrong:["The hikers rested","rested beside","rushing river rested"],
+    exp:"<b>Beside the rushing river</b> starts with the preposition <i>beside</i> and ends with a noun, so it is the prepositional phrase." },
+  { s:"A letter from my grandmother arrived today.", a:"from my grandmother",
+    wrong:["A letter","arrived today","grandmother arrived"],
+    exp:"<b>From my grandmother</b> begins with the preposition <i>from</i> and names who the letter is from." },
+  { s:"The keys are inside the wooden drawer.", a:"inside the wooden drawer",
+    wrong:["The keys are","are inside","wooden keys"],
+    exp:"<b>Inside the wooden drawer</b> begins with the preposition <i>inside</i> and tells where the keys are." },
+  { s:"They traveled across the wide desert.", a:"across the wide desert",
+    wrong:["They traveled","traveled across","wide traveled"],
+    exp:"<b>Across the wide desert</b> begins with the preposition <i>across</i> and tells where they traveled." },
+  { s:"The painting above the fireplace is very old.", a:"above the fireplace",
+    wrong:["The painting","is very old","fireplace painting"],
+    exp:"<b>Above the fireplace</b> begins with the preposition <i>above</i> and tells where the painting hangs." },
+  { s:"We waited beneath the old oak tree.", a:"beneath the old oak tree",
+    wrong:["We waited","waited beneath","old waited"],
+    exp:"<b>Beneath the old oak tree</b> begins with the preposition <i>beneath</i> and tells where we waited." }
+];
+function E7_genPrep(){
+  var it = pick(E7_PREP);
+  var q = "Which group of words is the prepositional phrase in: <i>“"+it.s+"”</i>";
+  return { topic:"Prepositional Phrases", q:q,
+    options:shuffle(wordOpts(it.a, it.wrong)), a:it.a,
+    steps:[it.exp], say:E7_say("Which group of words is the prepositional phrase in: "+it.s) };
+}
+
+/* ---------- 7) Punctuation — commas, semicolons, colons ---------- */
+var E7_PUNCT = [
+  { prompt:"Which sentence uses the semicolon correctly?",
+    a:"I finished my homework; then I watched a movie.",
+    wrong:["I finished my homework, then I watched a movie.","I finished my homework then; I watched a movie.","I finished; my homework then I watched a movie."],
+    exp:"A semicolon joins two complete, closely related sentences: <b>I finished my homework; then I watched a movie.</b>" },
+  { prompt:"Which sentence uses the colon correctly?",
+    a:"We need three things: a map, a compass, and water.",
+    wrong:["We need three things; a map, a compass, and water.","We need three things, a map, a compass, and water.","We need: three things a map, a compass, and water."],
+    exp:"A colon introduces a list after a complete sentence: <b>We need three things: a map, a compass, and water.</b>" },
+  { prompt:"Which sentence is punctuated correctly?",
+    a:"The test was hard; however, I passed it.",
+    wrong:["The test was hard. however, I passed it.","The test was hard however, I passed it.","The test was hard, however I passed it."],
+    exp:"Use a semicolon before <i>however</i> and a comma after it: <b>The test was hard; however, I passed it.</b>" },
+  { prompt:"Which sentence places the comma correctly?",
+    a:"After we ate dinner, we went for a long walk.",
+    wrong:["After we ate dinner we went for a long walk.","After, we ate dinner we went for a long walk.","After we ate, dinner we went for a long walk."],
+    exp:"An introductory clause is followed by a comma: <b>After we ate dinner,</b> then the main idea." },
+  { prompt:"Which sentence uses the colon correctly?",
+    a:"She had one goal: to win the championship.",
+    wrong:["She had one goal; to win the championship.","She had one goal to win the championship.","She had: one goal to win the championship."],
+    exp:"A colon can introduce an explanation after a complete sentence: <b>She had one goal: to win the championship.</b>" },
+  { prompt:"Which sentence uses semicolons correctly in a list?",
+    a:"We visited Paris, France; Rome, Italy; and Cairo, Egypt.",
+    wrong:["We visited Paris, France, Rome, Italy, and Cairo, Egypt.","We visited Paris France; Rome Italy; and Cairo Egypt.","We visited Paris, France: Rome, Italy: and Cairo, Egypt."],
+    exp:"When list items already contain commas, semicolons separate the items clearly: <b>Paris, France; Rome, Italy; and Cairo, Egypt.</b>" }
+];
+function E7_genPunct(){
+  var it = pick(E7_PUNCT);
+  return { topic:"Punctuation", q:it.prompt,
+    options:shuffle(wordOpts(it.a, it.wrong)), a:it.a,
+    steps:[it.exp], say:E7_say(it.prompt) };
+}
+
+/* ---------- 8) Pronoun case — subject / object / possessive ---------- */
+var E7_PRONOUN = [
+  { q:"Choose the correct pronoun: <i>“Between you and ___, this plan will work.”</i>",
+    a:"me", wrong:["I","myself","mine"],
+    exp:"After the preposition <i>between</i>, use the object pronoun <b>me</b>." },
+  { q:"Choose the correct pronoun: <i>“My brother and ___ went to the store.”</i>",
+    a:"I", wrong:["me","myself","mine"],
+    exp:"The pronoun is part of the subject doing the action, so use the subject pronoun <b>I</b>." },
+  { q:"Choose the correct pronoun: <i>“The teacher gave the prize to Sara and ___.”</i>",
+    a:"me", wrong:["I","myself","mine"],
+    exp:"The pronoun receives the action after <i>to</i>, so use the object pronoun <b>me</b>." },
+  { q:"Choose the correct pronoun: <i>“That blue backpack is ___.”</i>",
+    a:"mine", wrong:["my","me","I"],
+    exp:"To show ownership standing alone after <i>is</i>, use the possessive pronoun <b>mine</b>." },
+  { q:"Choose the correct pronoun: <i>“___ are going to love this movie.”</i>",
+    a:"They", wrong:["Them","Their","Theirs"],
+    exp:"The pronoun is the subject of the sentence, so use the subject pronoun <b>They</b>." },
+  { q:"Choose the correct pronoun: <i>“The dog wagged ___ tail happily.”</i>",
+    a:"its", wrong:["it's","its'","their"],
+    exp:"To show the tail belongs to the dog, use the possessive <b>its</b> (no apostrophe); <i>it's</i> means <i>it is</i>." },
+  { q:"Choose the correct pronoun: <i>“Please hand the tickets to ___.”</i>",
+    a:"us", wrong:["we","our","ourselves"],
+    exp:"The pronoun receives the action after <i>to</i>, so use the object pronoun <b>us</b>." },
+  { q:"Choose the correct pronoun: <i>“She and ___ are best friends.”</i>",
+    a:"I", wrong:["me","myself","mine"],
+    exp:"The pronoun is part of the subject, so use the subject pronoun <b>I</b>." },
+  { q:"Choose the correct pronoun: <i>“Is this notebook ___ or his?”</i>",
+    a:"hers", wrong:["her","she","her's"],
+    exp:"To show ownership standing alone, use the possessive pronoun <b>hers</b> (no apostrophe)." }
+];
+function E7_genPronoun(){
+  var it = pick(E7_PRONOUN);
+  return { topic:"Pronoun Case", q:it.q,
+    options:shuffle(wordOpts(it.a, it.wrong)), a:it.a,
+    steps:[it.exp], say:E7_say(it.q) };
+}
+
+/* ---------- 9) Active vs passive voice ---------- */
+var E7_VOICE = [
+  { prompt:"Which sentence is written in the <b>passive</b> voice?",
+    a:"The window was broken by the storm.",
+    wrong:["The storm broke the window.","The storm damaged the old house.","The wind blew the leaves away."],
+    exp:"In the passive voice the subject receives the action: <i>The window</i> <b>was broken</b> by the storm." },
+  { prompt:"Which sentence is written in the <b>passive</b> voice?",
+    a:"The cake was eaten by the children.",
+    wrong:["The children ate the cake.","The children baked a cake.","The children shared the cake."],
+    exp:"The subject <i>the cake</i> receives the action (<b>was eaten</b>), so this sentence is passive." },
+  { prompt:"Which sentence is written in the <b>passive</b> voice?",
+    a:"The letter was written by my grandfather.",
+    wrong:["My grandfather wrote the letter.","My grandfather mailed the letter.","My grandfather read the letter."],
+    exp:"The subject <i>the letter</i> receives the action (<b>was written</b>), so this sentence is passive." },
+  { prompt:"Which sentence is written in the <b>active</b> voice?",
+    a:"The chef prepared a delicious meal.",
+    wrong:["A delicious meal was prepared by the chef.","The meal was served right on time.","The meal was enjoyed by everyone."],
+    exp:"In the active voice the subject does the action: <i>The chef</i> <b>prepared</b> the meal." },
+  { prompt:"Which sentence is written in the <b>passive</b> voice?",
+    a:"The song was sung by the whole choir.",
+    wrong:["The choir sang the song.","The choir practiced for hours.","The audience loved the song."],
+    exp:"The subject <i>the song</i> receives the action (<b>was sung</b>), so this sentence is passive." },
+  { prompt:"Which sentence is written in the <b>active</b> voice?",
+    a:"Our team won the championship.",
+    wrong:["The championship was won by our team.","The trophy was lifted by the captain.","The game was watched by thousands."],
+    exp:"In the active voice the subject does the action: <i>Our team</i> <b>won</b> the championship." }
+];
+function E7_genVoice(){
+  var it = pick(E7_VOICE);
+  return { topic:"Active vs Passive Voice", q:it.prompt,
+    options:shuffle(wordOpts(it.a, it.wrong)), a:it.a,
+    steps:[it.exp], say:E7_say(it.prompt) };
+}
+
+/* ---------- 10) Theme / central idea of a short passage ---------- */
+var E7_THEME = [
+  { s:"Even though the other runners were faster, Jamal never stopped training. He fell behind in every practice, but he kept showing up. By the end of the season, he had cut two minutes off his time.",
+    a:"Steady effort leads to personal improvement.",
+    wrong:["Running is a dangerous sport.","Jamal has many friends on the team.","The fastest runner always wins the race."],
+    exp:"Jamal keeps training and improves over time, so the central idea is that <b>steady effort leads to personal improvement</b>." },
+  { s:"The old fisherman could have kept the large pearl for himself. Instead, he returned it to the diver who had lost it, saying a clear conscience was worth more than gold.",
+    a:"Honesty matters more than wealth.",
+    wrong:["Pearls are found deep in the ocean.","Fishermen work very long hours.","The diver was a poor swimmer."],
+    exp:"The fisherman gives up the valuable pearl to do what is right, so the theme is that <b>honesty matters more than wealth</b>." },
+  { s:"The new student sat alone at lunch, unsure of anyone. Priya noticed and invited her to join their table. By the next week, the two were inseparable.",
+    a:"A small act of kindness can begin a friendship.",
+    wrong:["New students always feel nervous.","Lunchtime is the best part of school.","Priya already had many old friends."],
+    exp:"One kind invitation turns a lonely student into a close friend, so the theme is that <b>a small act of kindness can begin a friendship</b>." },
+  { s:"The general had won many battles, but he bragged about every one. When he finally lost, no one offered to help him, for he had never helped anyone else.",
+    a:"Pride and selfishness can leave you alone.",
+    wrong:["Battles are won with large armies.","Generals wear fancy uniforms.","The general was very wealthy."],
+    exp:"The boastful, selfish general is abandoned in the end, so the theme is that <b>pride and selfishness can leave you alone</b>." },
+  { s:"Sofia wanted the solo, but so did her best friend. Sofia practiced in secret, then realized the music sounded richer when they sang together. She asked the teacher if they could share the part.",
+    a:"Working together can be better than competing.",
+    wrong:["Concerts are held in large halls.","Sofia had a beautiful singing voice.","The music teacher was very strict."],
+    exp:"Sofia chooses to share instead of compete because the result is better, so the theme is that <b>working together can be better than competing</b>." }
+];
+function E7_genTheme(){
+  var it = pick(E7_THEME);
+  var q = "What is the central idea (theme) of this passage? <i>“"+it.s+"”</i>";
+  return { topic:"Theme & Central Idea", q:q,
+    options:shuffle(wordOpts(it.a, it.wrong)), a:it.a,
+    steps:[it.exp], say:E7_say("What is the central idea or theme of this passage? "+it.s) };
+}
+
+/* ---------- 11) Author's purpose / point of view ---------- */
+var E7_PURP_UNIV = [
+  "To persuade the reader to take an action or share a view",
+  "To inform the reader with facts and information",
+  "To entertain the reader with a story",
+  "To describe a person, place, or thing in vivid detail"
+];
+var E7_PURPOSE = [
+  { s:"Everyone should recycle. It saves energy, protects wildlife, and keeps our neighborhoods clean. Make the switch today — our planet is counting on you.",
+    a:"To persuade the reader to take an action or share a view",
+    exp:"The writer is trying to convince you to recycle, so the purpose is <b>to persuade</b>." },
+  { s:"The Amazon rainforest covers much of northern South America. It is home to more than three million species of plants and animals.",
+    a:"To inform the reader with facts and information",
+    exp:"The passage gives true facts about the rainforest, so the purpose is <b>to inform</b>." },
+  { s:"The dragon sneezed, and a tiny puff of smoke shaped like a bunny floated out of its nose, making the whole village burst into laughter.",
+    a:"To entertain the reader with a story",
+    exp:"The funny, made-up event is meant to amuse you, so the purpose is <b>to entertain</b>." },
+  { s:"The marketplace burst with color: baskets of ruby tomatoes, strings of golden peppers, and mounds of deep purple eggplant glistened in the morning sun.",
+    a:"To describe a person, place, or thing in vivid detail",
+    exp:"The writer paints a vivid picture of the market with rich sensory detail, so the purpose is <b>to describe</b>." },
+  { s:"Students should have a longer lunch break. More time would help us focus in the afternoon, eat healthier, and feel less stressed. Please consider this change.",
+    a:"To persuade the reader to take an action or share a view",
+    exp:"The writer wants readers to support a longer lunch, so the purpose is <b>to persuade</b>." },
+  { s:"Thunder is the sound caused by lightning heating the air. Because light travels faster than sound, we see the flash before we hear the boom.",
+    a:"To inform the reader with facts and information",
+    exp:"The passage explains true facts about thunder and lightning, so the purpose is <b>to inform</b>." }
+];
+function E7_genPurpose(){
+  var it = pick(E7_PURPOSE);
+  var q = "What is the author's main purpose? <i>“"+it.s+"”</i>";
+  return { topic:"Author's Purpose", q:q,
+    options:shuffle(wordOpts(it.a, E7_PURP_UNIV)), a:it.a,
+    steps:[it.exp], say:E7_say("What is the author's main purpose? "+it.s) };
+}
+
+BANKS.english['7'] = { label:"Grade 7 English", gens:[
+  E7_genVocab,
+  E7_genRoots,
+  E7_genFig,
+  E7_genClause,
+  E7_genSentType,
+  E7_genPrep,
+  E7_genPunct,
+  E7_genPronoun,
+  E7_genVoice,
+  E7_genTheme,
+  E7_genPurpose
+] };
+
 /* grade display + ordering */
 var GRADE_NAME = { 'PreK':'Preschool', 'K':'Kindergarten', '1':'Grade 1','2':'Grade 2','3':'Grade 3','4':'Grade 4','5':'Grade 5','6':'Grade 6','7':'Grade 7','8':'Grade 8','9':'Grade 9','10':'Grade 10','11':'Grade 11','12':'Grade 12' };
 var GRADE_ORDER = ['PreK','K','1','2','3','4','5','6','7','8','9','10','11','12'];
