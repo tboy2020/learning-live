@@ -1,0 +1,599 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Learning Live</title>
+<meta name="description" content="Learning Live — kids compete together online in Math & English, by grade. One host, up to ~20 players joining from their own phones with a room code. Kahoot-style, with worked-step answers and a live leaderboard.">
+<meta name="theme-color" content="#10243f">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<style>
+:root{
+  --font:"Baloo 2","Comic Sans MS","Segoe UI Rounded",-apple-system,system-ui,"Trebuchet MS",sans-serif;
+  --ink:#eef5ff; --ink-soft:#aebfdc; --paper:#fbfbf4; --paper-ink:#23314a;
+  --bg1:#163a66; --bg2:#0e1f3a; --gold:#ffd23f; --gold2:#f4b60c;
+  --ok:#36c08a; --no:#ff6b8a;
+  --shadow:0 10px 0 rgba(0,0,0,.26), 0 18px 34px rgba(6,16,36,.45);
+  --cA:#ef476f; --cB:#118ab2; --cC:#06d6a0; --cD:#ffd166;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{height:100%; margin:0;}
+body{font-family:var(--font); color:var(--ink); text-align:center; overflow-x:hidden;
+  -webkit-user-select:none; user-select:none; touch-action:manipulation;
+  background:radial-gradient(1000px 600px at 12% -8%,#1f5a8e,transparent 60%),radial-gradient(900px 600px at 110% 6%,#1f7a6e,transparent 55%),linear-gradient(165deg,var(--bg1),var(--bg2)); background-attachment:fixed; min-height:100%;}
+.wrap{max-width:720px; margin:0 auto; padding:18px 16px 40px;}
+.screen{display:none;} .screen.active{display:block; animation:pop .25s ease;}
+@keyframes pop{from{opacity:0; transform:translateY(8px)}to{opacity:1; transform:none}}
+h1.brand{font-size:clamp(30px,8vw,52px); line-height:1; margin:.1em 0 0; background:linear-gradient(90deg,#fff,#bdf3ff,#ffd23f,#9af5cf,#fff); -webkit-background-clip:text; background-clip:text; color:transparent;}
+.sword{font-size:clamp(44px,13vw,80px); line-height:1; margin:6px 0 0;}
+.tag{color:var(--gold); font-weight:800; letter-spacing:2px; font-size:14px; text-transform:uppercase;}
+p.lead{color:var(--ink-soft); font-size:clamp(15px,4vw,18px); margin:.6em auto 1.1em; max-width:520px;}
+.btn{font-family:var(--font); font-weight:800; border:0; cursor:pointer; border-radius:999px; padding:15px 24px; font-size:19px; color:#2a2208; background:linear-gradient(180deg,#ffe07a,var(--gold)); box-shadow:0 7px 0 #b98a0b,0 12px 22px rgba(0,0,0,.3); margin:7px; transition:transform .08s,box-shadow .08s;}
+.btn:active{transform:translateY(5px); box-shadow:0 2px 0 #b98a0b,0 6px 12px rgba(0,0,0,.3);}
+.btn.ghost{background:rgba(255,255,255,.08); color:var(--ink); box-shadow:0 5px 0 rgba(0,0,0,.25); border:2px solid rgba(255,255,255,.18);}
+.btn.big{display:block; width:100%; max-width:420px; margin:12px auto; padding:18px 30px; font-size:22px;}
+.btn.sm{padding:10px 16px; font-size:16px;}
+.btn:disabled{opacity:.5; filter:grayscale(.3);}
+.card{background:rgba(255,255,255,.06); border:2px solid rgba(255,255,255,.12); border-radius:22px; padding:18px; box-shadow:var(--shadow); margin:12px 0;}
+input{font-family:var(--font); font-size:20px; padding:13px 15px; border-radius:14px; border:2px solid rgba(255,255,255,.2); background:rgba(255,255,255,.96); color:#24204a; width:100%; margin:6px 0; text-align:center;}
+input#codeIn{letter-spacing:8px; text-transform:uppercase; font-weight:900; font-size:26px;}
+.code{font-size:clamp(44px,13vw,78px); font-weight:900; letter-spacing:10px; color:var(--gold); margin:6px 0; text-shadow:0 4px 0 rgba(0,0,0,.25);}
+.players{display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:10px 0;}
+.pchip{border-radius:999px; padding:7px 14px; font-weight:800; font-size:15px; color:#fff; box-shadow:0 3px 0 rgba(0,0,0,.22);}
+.count{font-weight:900; color:var(--gold); font-size:18px;}
+.qcard{background:var(--paper); color:var(--paper-ink); border-radius:22px; padding:20px 16px; box-shadow:var(--shadow); margin:10px 0 14px;}
+.qtext{font-size:clamp(22px,6vw,30px); font-weight:800; line-height:1.3;}
+.qref{color:#7f8aa3; font-size:13px; margin-top:8px; font-weight:700; text-transform:uppercase; letter-spacing:1px;}
+.opts{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:10px 0;}
+.opt{font-family:var(--font); font-weight:800; font-size:19px; border:0; color:#fff; border-radius:18px; padding:20px 12px; cursor:pointer; box-shadow:0 6px 0 rgba(0,0,0,.28); min-height:84px; display:flex; align-items:center; justify-content:center; gap:8px; transition:transform .06s; word-break:break-word;}
+.opt:active{transform:translateY(3px);}
+.opt .lab{background:rgba(0,0,0,.22); border-radius:8px; padding:2px 9px; font-size:16px;}
+.opt.a{background:var(--cA);} .opt.b{background:var(--cB);} .opt.c{background:var(--cC); color:#07352a;} .opt.d{background:var(--cD); color:#5a4a10;}
+.opt.dim{opacity:.35;} .opt.right{outline:5px solid #fff; outline-offset:2px;} .opt.chosen{box-shadow:0 0 0 5px #fff inset,0 6px 0 rgba(0,0,0,.28);}
+.lb{margin:10px 0;}
+.lbrow{display:flex; align-items:center; justify-content:space-between; gap:10px; background:rgba(255,255,255,.08); border-radius:14px; padding:11px 14px; margin:7px 0;}
+.lbrow b{color:var(--gold); font-size:18px;} .lbrow .nm{display:flex; align-items:center; gap:9px; font-weight:800;}
+.dot{width:16px; height:16px; border-radius:50%; flex:none;}
+.big-feed{font-size:24px; font-weight:900; margin:10px 0;}
+.big-feed.ok{color:#9af5cf;} .big-feed.no{color:#ffb3c4;}
+.muted{color:var(--ink-soft); font-size:14px;} .small{font-size:13px;}
+.topbar{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px;}
+.pill{display:inline-block; background:rgba(255,255,255,.1); border-radius:999px; padding:6px 13px; font-weight:800; font-size:14px; margin:3px;}
+.toast{position:fixed; left:50%; bottom:22px; transform:translateX(-50%) translateY(20px); background:#15305a; border:2px solid var(--gold); color:#fff; font-weight:800; padding:11px 18px; border-radius:999px; opacity:0; transition:.25s; z-index:60; box-shadow:var(--shadow);}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+footer{color:var(--ink-soft); font-size:12px; margin-top:22px; opacity:.85;}
+a{color:var(--ink-soft);}
+.hearbtn{margin-top:10px; font-family:var(--font); font-weight:800; font-size:15px; border:0; cursor:pointer; color:#2a2208; background:rgba(255,210,63,.95); border-radius:999px; padding:9px 18px; box-shadow:0 4px 0 #b98a0b;}
+.hearbtn:active{transform:translateY(2px); box-shadow:0 2px 0 #b98a0b;}
+/* subject + grade pickers */
+.choices2{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:8px 0;}
+.gradegrid{display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:6px 0;}
+.pickbtn{font-family:var(--font); font-weight:800; font-size:18px; border:2px solid rgba(255,255,255,.18); cursor:pointer; color:var(--ink); background:rgba(255,255,255,.07); border-radius:16px; padding:16px 10px; box-shadow:0 5px 0 rgba(0,0,0,.22); transition:transform .07s;}
+.pickbtn:active{transform:translateY(3px);}
+.pickbtn.on{background:linear-gradient(180deg,#ffe07a,var(--gold)); color:#2a2208; border-color:#f4b60c; box-shadow:0 5px 0 #b98a0b;}
+.gradebtn{min-width:120px;}
+.gradebtn small{display:block; font-weight:700; font-size:12px; opacity:.8;}
+/* explanation / worked steps */
+.explain{background:var(--paper); color:var(--paper-ink); border-radius:18px; padding:14px 16px; margin:12px 0; text-align:left; box-shadow:var(--shadow);}
+.explain .eh{font-weight:900; margin-bottom:6px; color:#1d2a40; font-size:16px;}
+.explain ol{margin:0; padding-left:22px;}
+.explain li{margin:7px 0; font-size:15.5px; line-height:1.5;}
+.explain b{color:#0a7a52;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- SETUP NEEDED (only if Firebase config missing) -->
+  <section id="setup" class="screen">
+    <div class="sword">🎓🔌</div>
+    <h1 class="brand">Learning Live — setup</h1>
+    <div class="card" style="text-align:left">
+      <p>This live version needs a quick <b>one-time Firebase connection</b> (free). Paste the Firebase config into <code>index.html</code>. Once it's in, this screen disappears.</p>
+    </div>
+  </section>
+
+  <!-- HOME -->
+  <section id="home" class="screen">
+    <div class="tag">Learn together, live</div>
+    <div class="sword">🎓⚡</div>
+    <h1 class="brand">Learning Live</h1>
+    <p class="lead">One host picks a <b>subject &amp; grade</b> and starts a room. Everyone joins with a code on their own phone. Same question for all — and every answer shows <b>how to work it out</b>! 🏆</p>
+    <button class="btn big" onclick="goHostSetup()">🎤 Host a game</button>
+    <button class="btn ghost big" onclick="show('join')">📲 Join a game</button>
+    <footer>Up to ~20 players · Math &amp; English · worked-step answers · Glory to God alone 🙏</footer>
+  </section>
+
+  <!-- HOST SETUP: subject + grade -->
+  <section id="hostSetup" class="screen">
+    <div class="topbar"><button class="btn ghost sm" onclick="show('home')">⬅️ Back</button><b>Set up the room</b><span></span></div>
+    <div class="card">
+      <label class="muted">1. Pick a subject</label>
+      <div class="choices2" id="subjPick">
+        <button class="pickbtn" data-subj="math" onclick="pickSubject('math')">🔢 Math</button>
+        <button class="pickbtn" data-subj="english" onclick="pickSubject('english')">📖 English</button>
+      </div>
+      <label class="muted" style="margin-top:10px; display:block">2. Pick a grade</label>
+      <div class="gradegrid" id="gradePick"><span class="muted small">Choose a subject first ☝️</span></div>
+    </div>
+    <button class="btn big" id="createBtn" onclick="goHost()" disabled>Create room ▶️</button>
+  </section>
+
+  <!-- JOIN -->
+  <section id="join" class="screen">
+    <div class="topbar"><button class="btn ghost sm" onclick="show('home')">⬅️ Back</button><b>Join a game</b><span></span></div>
+    <div class="card">
+      <label class="muted">Room code</label>
+      <input id="codeIn" maxlength="4" placeholder="ABCD" autocomplete="off" autocapitalize="characters">
+      <label class="muted">Your name</label>
+      <input id="nameIn" maxlength="14" placeholder="Your name" autocomplete="off">
+      <button class="btn big" onclick="doJoin()">Join ▶️</button>
+    </div>
+  </section>
+
+  <!-- HOST LOBBY -->
+  <section id="hostLobby" class="screen">
+    <div class="tag">You are the host</div>
+    <div class="pill" id="hLobbyLabel">Grade</div>
+    <p class="lead" style="margin:.3em auto">Players: open <b>the same link</b>, tap <b>Join</b>, and enter this code 👇</p>
+    <div class="code" id="hostCode">----</div>
+    <p class="muted" id="joinUrl"></p>
+    <div class="card">
+      <div><span class="count" id="plCount">0</span> joined</div>
+      <div class="players" id="lobbyPlayers"></div>
+    </div>
+    <button class="btn big" id="startBtn" onclick="hostStart()">Start game ▶️</button>
+    <p class="muted">Everyone answers <b>10 questions</b>. You control the pace.</p>
+    <button class="btn ghost sm" onclick="hostEndRoom()">✕ Close room</button>
+  </section>
+
+  <!-- HOST PLAY -->
+  <section id="hostPlay" class="screen">
+    <div class="topbar"><span class="pill" id="hRoom">Room</span><span class="pill" id="hLabel">—</span><span class="pill" id="hProg">Q 1/10</span></div>
+    <div class="qcard"><div class="qtext" id="hQ">…</div><div class="qref" id="hRef"></div><button class="hearbtn" onclick="hearQ('h')">🔊 Hear it</button></div>
+    <div id="hOpts" class="opts"></div>
+    <div class="big-feed" id="hStatus"><span class="count" id="hAnsCount">0</span> / <span id="hPlTotal">0</span> answered</div>
+    <div id="hReveal" style="display:none"><div id="hSteps"></div><div class="lb" id="hLB"></div></div>
+    <button class="btn big" id="hAction" onclick="hostAction()">Reveal answer ▶️</button>
+  </section>
+
+  <!-- GUEST PLAY -->
+  <section id="guestPlay" class="screen">
+    <div class="topbar"><span class="pill" id="gName">You</span><span class="pill" id="gLabel">—</span><span class="pill" id="gProg">Q 1/10</span><span class="pill" id="gScore">0 right</span></div>
+    <div class="qcard"><div class="qtext" id="gQ">…</div><div class="qref" id="gRef"></div><button class="hearbtn" onclick="hearQ('g')">🔊 Hear it</button></div>
+    <div id="gOpts" class="opts"></div>
+    <div class="big-feed" id="gFeed"></div>
+    <div id="gReveal" style="display:none"><div id="gSteps"></div><div class="lb" id="gLB"></div></div>
+    <p class="muted" id="gWait">Waiting for the host…</p>
+  </section>
+
+  <!-- RESULTS -->
+  <section id="results" class="screen">
+    <div class="sword" id="resEmoji">🏆</div>
+    <h1 class="brand" id="resTitle">Results</h1>
+    <div class="lb" id="resLB" style="max-width:460px; margin:12px auto"></div>
+    <button class="btn big" onclick="location.reload()">🏠 New game</button>
+  </section>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<!-- Firebase (compat) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
+<script>
+/* ============================================================
+   Firebase config (public web config — safe in client code).
+   Re-uses Pastor Taiwo's existing "draw-your-sword" project.
+   Rooms are tagged app:"learn" so they never clash with the
+   Bible-game rooms that share the same /rooms node.
+   ============================================================ */
+var FIREBASE_CONFIG = {
+  apiKey: "AIzaSyD0l5qjB1DZ4IuYs0kqRXTQ5034xdAfIe4",
+  authDomain: "draw-your-sword.firebaseapp.com",
+  databaseURL: "https://draw-your-sword-default-rtdb.firebaseio.com",
+  projectId: "draw-your-sword",
+  storageBucket: "draw-your-sword.firebasestorage.app",
+  messagingSenderId: "960881468400",
+  appId: "1:960881468400:web:d958eeaca69979f94b3335"
+};
+
+var TOTAL_Q = 10;
+
+var $=function(s){return document.querySelector(s);};
+var $$=function(s){return Array.prototype.slice.call(document.querySelectorAll(s));};
+function show(id){ $$('.screen').forEach(function(s){s.classList.remove('active');}); var el=$('#'+id); if(el)el.classList.add('active'); window.scrollTo(0,0); }
+function toast(m){ var t=$('#toast'); t.textContent=m; t.classList.add('show'); setTimeout(function(){t.classList.remove('show');},2000); }
+function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];}); }
+function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
+function shuffle(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;} return a; }
+function R(a,b){ return a+Math.floor(Math.random()*(b-a+1)); }
+function Rnz(a,b){ var n=0; do{ n=R(a,b); }while(n===0); return n; }
+var COLORS=["#ffd23f","#36c08a","#4aa3ff","#ff6b8a","#b084ff","#ff9f43","#2dd4bf","#f06595","#ffd166","#9b5de5","#00bbf9","#fb5607"];
+var OPTCLS=["a","b","c","d"], OPTLAB=["A","B","C","D"];
+var VOICES=[]; function loadVoices(){ try{VOICES=window.speechSynthesis.getVoices()||[];}catch(e){} }
+if('speechSynthesis' in window){ loadVoices(); try{window.speechSynthesis.onvoiceschanged=loadVoices;}catch(e){} }
+function speak(text){ try{ if(!('speechSynthesis' in window)||!text)return; window.speechSynthesis.cancel(); var u=new SpeechSynthesisUtterance(text); u.rate=0.96; u.pitch=1.05; var v=VOICES.filter(function(x){return /en[-_]/i.test(x.lang);})[0]; if(v)u.voice=v; window.speechSynthesis.speak(u); }catch(e){} }
+var SAY_H="", SAY_G="";
+function hearQ(which){ var s=which==='h'?SAY_H:SAY_G; if(!s){ var el=document.getElementById(which+'Q'); s=el?el.textContent:''; var opts=Array.prototype.map.call(document.querySelectorAll('#'+which+'Opts .opt'),function(b){return b.textContent.replace(/\s+/g,' ').trim();}).join('. '); s=s+(opts?'.  '+opts:''); } speak(s); }
+
+/* ---------- distractor helpers ---------- */
+function numOpts(ans, spread, allowNeg){
+  spread=spread||Math.max(2,Math.round(Math.abs(ans)*0.3)+1);
+  var set={}; set[String(ans)]=1; var out=[String(ans)]; var guard=0;
+  while(out.length<4 && guard<120){ guard++;
+    var d=ans + R(1,spread)*(Math.random()<0.5?-1:1);
+    if(!allowNeg && d<0) continue;
+    var s=String(d); if(!set[s]){ set[s]=1; out.push(s); }
+  }
+  var k=1; while(out.length<4){ var c=ans+k; if((allowNeg||c>=0)&&!set[String(c)]){set[String(c)]=1;out.push(String(c));} k++; if(k>300)break; }
+  return out;
+}
+function wordOpts(ans, pool){ // ans string + 3 distinct distractors from pool
+  var out=[ans]; var bag=shuffle(pool.filter(function(w){return w!==ans;}));
+  for(var i=0;i<bag.length && out.length<4;i++){ if(out.indexOf(bag[i])<0) out.push(bag[i]); }
+  var extra=["—","?","none","all"]; var e=0; while(out.length<4){ out.push(extra[e++]); }
+  return out;
+}
+
+/* ============================================================
+   QUESTION BANKS  —  BANKS[subject][grade] = {label, order, gen()}
+   Each gen() returns: { q, options:[4 strings], a:answerString,
+                         steps:[html...], say, topic }
+   The host shuffles options and reveals the worked steps.
+   ============================================================ */
+var BANKS = { math:{}, english:{} };
+
+/* ---------------- KINDERGARTEN MATH ---------------- */
+BANKS.math['K'] = { label:"Kindergarten Math", gens:[
+  function(){ var emo=pick(['🍎','⭐','🐱','🎈','🚗','🍪','🐶','🌸']); var n=R(3,10);
+    var seq=[]; for(var i=1;i<=n;i++)seq.push(i);
+    return { topic:"Counting", q:"Count them!  "+repeatStr(emo,n), options:numOpts(n,3), a:String(n),
+      steps:["Point to each one and count: "+seq.join(', ')+".","There are <b>"+n+"</b>."], say:"Count the "+emo+". How many are there?" }; },
+  function(){ var a=R(1,5), b=R(1,10-a); var s=a+b;
+    return { topic:"Adding to 10", q:a+" + "+b+" = ?", options:numOpts(s,3), a:String(s),
+      steps:["Start at <b>"+a+"</b>, then count up <b>"+b+"</b> more.", a+" + "+b+" = <b>"+s+"</b>."], say:a+" plus "+b+" equals?" }; },
+  function(){ var a=R(3,10), b=R(1,a-1); var d=a-b;
+    return { topic:"Taking away", q:a+" − "+b+" = ?", options:numOpts(d,3), a:String(d),
+      steps:["Start at <b>"+a+"</b>, then take away <b>"+b+"</b>.", a+" − "+b+" = <b>"+d+"</b>."], say:a+" take away "+b+" equals?" }; },
+  function(){ var a=R(1,9), b=10-a;
+    return { topic:"Make 10", q:a+" + ? = 10", options:numOpts(b,3), a:String(b),
+      steps:["How many more to reach 10?","10 − "+a+" = <b>"+b+"</b>.  (because "+a+" + "+b+" = 10)"], say:a+" plus what makes 10?" }; },
+  function(){ var nums=[]; while(nums.length<4){ var v=R(1,20); if(nums.indexOf(v)<0)nums.push(v);} var mx=Math.max.apply(null,nums);
+    return { topic:"Bigger number", q:"Tap the BIGGEST number.", options:nums.map(String), a:String(mx),
+      steps:["Compare them all.","<b>"+mx+"</b> is the biggest."], say:"Which is the biggest number?" }; },
+  function(){ var nums=[]; while(nums.length<4){ var v=R(1,20); if(nums.indexOf(v)<0)nums.push(v);} var mn=Math.min.apply(null,nums);
+    return { topic:"Smaller number", q:"Tap the SMALLEST number.", options:nums.map(String), a:String(mn),
+      steps:["Compare them all.","<b>"+mn+"</b> is the smallest."], say:"Which is the smallest number?" }; },
+  function(){ var sh=pick([['triangle',3],['square',4],['rectangle',4],['pentagon',5],['hexagon',6]]);
+    return { topic:"Shapes", q:"How many sides does a "+sh[0]+" have?", options:numOpts(sh[1],2), a:String(sh[1]),
+      steps:["A "+sh[0]+" has <b>"+sh[1]+"</b> sides."], say:"How many sides does a "+sh[0]+" have?" }; }
+]};
+
+/* ---------------- GRADE 2 MATH ---------------- */
+BANKS.math['2'] = { label:"Grade 2 Math", gens:[
+  function(){ var a=R(13,78), b=R(12,78); var o1=a%10,o2=b%10,os=o1+o2,carry=os>=10?1:0;
+    var t1=Math.floor(a/10),t2=Math.floor(b/10);
+    return { topic:"Column addition", q:a+" + "+b+" = ?", options:numOpts(a+b,6), a:String(a+b),
+      steps:[ "Add the ones: "+o1+" + "+o2+" = "+os+(carry?" → write "+(os%10)+", carry 1":""),
+              "Add the tens"+(carry?" (plus the carried 1)":"")+": "+t1+" + "+t2+(carry?" + 1":"")+" = "+(t1+t2+carry),
+              a+" + "+b+" = <b>"+(a+b)+"</b>." ], say:a+" plus "+b+" equals?" }; },
+  function(){ var a=R(35,99), b=R(11,a-1); var ao=a%10,bo=b%10,borrow=ao<bo;
+    var at=Math.floor(a/10),bt=Math.floor(b/10);
+    var steps = borrow
+      ? [ "Ones: "+ao+" is less than "+bo+", so borrow 1 ten → "+(ao+10)+" − "+bo+" = "+(ao+10-bo)+".",
+          "Tens: "+(at-1)+" − "+bt+" = "+(at-1-bt)+".",
+          a+" − "+b+" = <b>"+(a-b)+"</b>." ]
+      : [ "Ones: "+ao+" − "+bo+" = "+(ao-bo)+".",
+          "Tens: "+at+" − "+bt+" = "+(at-bt)+".",
+          a+" − "+b+" = <b>"+(a-b)+"</b>." ];
+    return { topic:"Subtraction", q:a+" − "+b+" = ?", options:numOpts(a-b,6), a:String(a-b), steps:steps, say:a+" minus "+b+" equals?" }; },
+  function(){ var n=R(123,989); var places=[['hundreds',100],['tens',10],['ones',1]]; var p=pick(places);
+    var digit=Math.floor(n/p[1])%10; var val=digit*p[1];
+    return { topic:"Place value", q:"In "+n+", what is the value of the "+p[0]+" digit?", options:numOpts(val, Math.max(2,p[1]), false), a:String(val),
+      steps:["The "+p[0]+" digit of "+n+" is "+digit+".","Its value is "+digit+" × "+p[1]+" = <b>"+val+"</b>."], say:"In "+n+", what is the "+p[0]+" digit worth?" }; },
+  function(){ var step=pick([2,3,5,10]); var start=step*R(1,6); var s=[start,start+step,start+2*step]; var nx=start+3*step;
+    return { topic:"Skip counting", q:"What comes next?  "+s.join(', ')+", ?", options:numOpts(nx,step+2), a:String(nx),
+      steps:["Each step adds "+step+".", s[2]+" + "+step+" = <b>"+nx+"</b>."], say:"Skip counting by "+step+". What comes next after "+s[2]+"?" }; },
+  function(){ var r=R(2,5),c=R(2,5); var p=r*c; var row=[]; for(var i=0;i<r;i++)row.push(c);
+    return { topic:"Arrays", q:r+" rows of "+c+" 🔵 — how many in all?", options:numOpts(p,4), a:String(p),
+      steps:[r+" rows × "+c+" in each = "+r+" × "+c+".",row.join(" + ")+" = <b>"+p+"</b>."], say:r+" rows of "+c+", how many altogether?" }; },
+  function(){ var f=pick([[2,'half'],[3,'third'],[4,'quarter']]); var N=f[0]*R(2,6); var ans=N/f[0];
+    return { topic:"Fractions", q:"What is 1/"+f[0]+" of "+N+"?", options:numOpts(ans,3), a:String(ans),
+      steps:["Split "+N+" into "+f[0]+" equal groups.", N+" ÷ "+f[0]+" = <b>"+ans+"</b>."], say:"What is one "+f[1]+" of "+N+"?" }; },
+  function(){ var q=R(1,3),d=R(1,4); var val=25*q+10*d;
+    return { topic:"Money", q:q+" quarter"+(q>1?"s":"")+" + "+d+" dime"+(d>1?"s":"")+" = ?", options:numOpts(val,15,false).map(function(x){return x+"¢";}), a:val+"¢",
+      steps:[q+" × 25¢ = "+(25*q)+"¢.", d+" × 10¢ = "+(10*d)+"¢.","Total = <b>"+val+"¢</b>."], say:q+" quarters and "+d+" dimes. How many cents?" }; }
+]};
+
+/* ---------------- GRADE 8 MATH ---------------- */
+BANKS.math['8'] = { label:"Grade 8 Math", gens:[
+  function(){ var a=R(2,6), x=R(-6,9), b=Rnz(-9,9); var c=a*x+b;
+    var q=a+"x "+(b>=0?"+ "+b:"− "+(-b))+" = "+c;
+    return { topic:"Two-step equations", q:"Solve for x:  "+q, options:numOpts(x,5,true), a:String(x),
+      steps:[ (b>=0?"Subtract "+b+" from both sides":"Add "+(-b)+" to both sides")+":  "+a+"x = "+(c-b),
+              "Divide both sides by "+a+":  x = <b>"+x+"</b>." ],
+      say:"Solve "+a+" x "+(b>=0?"plus "+b:"minus "+(-b))+" equals "+c } ; },
+  function(){ var a=R(2,9), x=R(2,12); var c=a*x;
+    return { topic:"One-step equations", q:"If "+a+"x = "+c+", then x = ?", options:numOpts(x,4,false), a:String(x),
+      steps:["Divide both sides by "+a+".", c+" ÷ "+a+" = <b>"+x+"</b>."], say:a+" x equals "+c+". Find x." }; },
+  function(){ var x1=R(-4,4), x2; do{x2=R(-4,5);}while(x2===x1); var m=Rnz(-3,4), b0=R(-4,5);
+    var y1=m*x1+b0, y2=m*x2+b0;
+    return { topic:"Slope", q:"Slope of the line through ("+x1+", "+y1+") and ("+x2+", "+y2+")?", options:numOpts(m,3,true), a:String(m),
+      steps:["slope = (y₂ − y₁) / (x₂ − x₁)","= ("+y2+" − "+y1+") / ("+x2+" − "+x1+") = "+(y2-y1)+"/"+(x2-x1)+" = <b>"+m+"</b>."],
+      say:"Find the slope through those two points." }; },
+  function(){ var t=pick([[3,4,5],[6,8,10],[5,12,13],[8,15,17],[9,12,15],[7,24,25]]); var a=t[0],b=t[1],c=t[2];
+    return { topic:"Pythagorean theorem", q:"Right triangle with legs "+a+" and "+b+". Find the hypotenuse.", options:numOpts(c,4,false), a:String(c),
+      steps:["a² + b² = c²", a+"² + "+b+"² = "+(a*a)+" + "+(b*b)+" = "+(a*a+b*b),"c = √"+(a*a+b*b)+" = <b>"+c+"</b>."],
+      say:"Legs "+a+" and "+b+". Find the hypotenuse." }; },
+  function(){ var base=pick(['x','a','n','y']); var m=R(2,6),n=R(2,6);
+    return { topic:"Exponent laws", q:base+"^"+m+" · "+base+"^"+n+" = ?", options:wordOpts(base+"^"+(m+n),[base+"^"+(m*n),base+"^"+Math.abs(m-n),base+"^"+(m+n+1),base+"^"+(m+n-1)]), a:base+"^"+(m+n),
+      steps:["Same base → add the exponents.", base+"^"+m+" · "+base+"^"+n+" = "+base+"^("+m+"+"+n+") = <b>"+base+"^"+(m+n)+"</b>."],
+      say:base+" to the "+m+" times "+base+" to the "+n } ; },
+  function(){ var p=pick([10,20,25,50,5,40]); var N=p===25?4*R(2,12):(p===50?2*R(2,20):10*R(2,9)); var ans=p/100*N;
+    return { topic:"Percent", q:"What is "+p+"% of "+N+"?", options:numOpts(ans,Math.max(2,Math.round(ans*0.3)),false), a:String(ans),
+      steps:[p+"% = "+(p/100)+".",(p/100)+" × "+N+" = <b>"+ans+"</b>."], say:"What is "+p+" percent of "+N+"?" }; },
+  function(){ var coef=R(2,9), exp=R(2,5); var val=coef*Math.pow(10,exp);
+    return { topic:"Scientific notation", q:coef+" × 10^"+exp+" = ?", options:numOpts(val,Math.round(val*0.4),false), a:String(val),
+      steps:["10^"+exp+" = "+Math.pow(10,exp)+".", coef+" × "+Math.pow(10,exp)+" = <b>"+val+"</b>."], say:coef+" times ten to the "+exp } ; },
+  function(){ var l=R(2,9),w=R(2,8),h=R(2,7); var v=l*w*h;
+    return { topic:"Volume", q:"Volume of a box "+l+" × "+w+" × "+h+"?", options:numOpts(v,Math.round(v*0.25),false), a:String(v),
+      steps:["V = length × width × height","= "+l+" × "+w+" × "+h+" = <b>"+v+"</b>."], say:"Volume of a "+l+" by "+w+" by "+h+" box?" }; },
+  function(){ var x=R(-5,6), a=R(2,6), b=Rnz(-8,8); var val=a*x+b;
+    return { topic:"Evaluate", q:"If x = "+x+", find "+a+"x "+(b>=0?"+ "+b:"− "+(-b)), options:numOpts(val,5,true), a:String(val),
+      steps:["Put "+x+" in for x:  "+a+"("+x+") "+(b>=0?"+ "+b:"− "+(-b)),"= "+(a*x)+(b>=0?" + "+b:" − "+(-b))+" = <b>"+val+"</b>."],
+      say:"If x is "+x+", evaluate "+a+" x "+(b>=0?"plus "+b:"minus "+(-b)) }; }
+]};
+
+/* ---------------- PRESCHOOL ENGLISH (phonics / early literacy) ---------------- */
+var WORDS_BY_LETTER = { b:['ball','bat','bed','bus','bear'], c:['cat','cup','car','can','cow'], d:['dog','duck','doll','door'], f:['fan','fish','fox','frog'], h:['hat','hen','house','hand'], m:['man','mop','moon','milk'], p:['pig','pen','pot','pan'], s:['sun','sock','seal','sand'], t:['top','ten','toe','tub'] };
+var RHYME_FAM = { at:['cat','hat','bat','mat','rat'], og:['dog','log','frog','hog'], un:['sun','bun','run','fun'], ig:['pig','wig','dig','big'], an:['pan','man','can','fan'], ed:['bed','red','fed','led'] };
+BANKS.english['PreK'] = { label:"Preschool Phonics", gens:[
+  function(){ var L=pick(Object.keys(WORDS_BY_LETTER)); var correct=pick(WORDS_BY_LETTER[L]);
+    var others=Object.keys(WORDS_BY_LETTER).filter(function(k){return k!==L;}); var pool=[]; shuffle(others).slice(0,3).forEach(function(k){pool.push(pick(WORDS_BY_LETTER[k]));});
+    return { topic:"Beginning sound", q:"Which word starts with the <b>"+L.toUpperCase()+"</b> sound?", options:shuffle([correct].concat(pool)).slice(0,4), a:correct,
+      steps:["Say it slowly:  "+L+"… "+correct+".","<b>"+correct+"</b> starts with "+L+"."], say:"Which word starts with the "+L+" sound?" }; },
+  function(){ var L=pick("ABDEFGHKMNPRST".split("")); var others=shuffle("BCDFGHJKLMNPRSTVW".split("").filter(function(c){return c!==L;})).slice(0,3);
+    return { topic:"Letters", q:"Tap the letter <b>"+L+"</b>", options:shuffle([L].concat(others)), a:L,
+      steps:["This is the letter <b>"+L+"</b>."], say:"Find the letter "+L }; },
+  function(){ var fam=pick(Object.keys(RHYME_FAM)); var words=shuffle(RHYME_FAM[fam]); var target=words[0], correct=words[1];
+    var pool=[]; Object.keys(RHYME_FAM).filter(function(k){return k!==fam;}).forEach(function(k){ pool=pool.concat(RHYME_FAM[k]); });
+    return { topic:"Rhyming", q:"Which word rhymes with <b>"+target+"</b>?", options:shuffle(wordOpts(correct,pool)), a:correct,
+      steps:["<b>"+correct+"</b> rhymes with "+target+" — they end the same: “-"+fam+"”."], say:"Which word rhymes with "+target+"?" }; }
+]};
+
+/* ---------------- KINDERGARTEN ENGLISH ---------------- */
+var OPPOSITES = {big:'small', hot:'cold', up:'down', day:'night', fast:'slow', happy:'sad', open:'shut', wet:'dry', in:'out', old:'new'};
+var CATS = { animal:['dog','cat','cow','pig','duck','fish'], color:['red','blue','green','pink'], food:['apple','bread','rice','milk'], number:['three','seven','ten','four'] };
+var DIGRAPH = {ship:'sh', chip:'ch', thin:'th', when:'wh', shop:'sh', chin:'ch'};
+BANKS.english['K'] = { label:"Kindergarten Reading", gens:[
+  function(){ var keys=Object.keys(OPPOSITES); var w=pick(keys); var opp=OPPOSITES[w];
+    var pool=keys.map(function(k){return OPPOSITES[k];}).filter(function(x){return x!==opp;});
+    return { topic:"Opposites", q:"What is the opposite of <b>"+w+"</b>?", options:wordOpts(opp,pool), a:opp,
+      steps:["The opposite of "+w+" is <b>"+opp+"</b>."], say:"What is the opposite of "+w+"?" }; },
+  function(){ var cat=pick(Object.keys(CATS)); var correct=pick(CATS[cat]);
+    var pool=[]; Object.keys(CATS).filter(function(k){return k!==cat;}).forEach(function(k){pool=pool.concat(CATS[k]);});
+    return { topic:"Word meaning", q:"Which word is a <b>"+cat+"</b>?", options:wordOpts(correct,pool), a:correct,
+      steps:["<b>"+correct+"</b> is a "+cat+"."], say:"Which word is a "+cat+"?" }; },
+  function(){ var w=pick(Object.keys(DIGRAPH)); var dg=DIGRAPH[w];
+    return { topic:"Beginning blends", q:"What two letters make the sound at the start of <b>"+w+"</b>?", options:wordOpts(dg,['sh','ch','th','wh','st','br']), a:dg,
+      steps:["<b>"+w+"</b> begins with the “"+dg+"” sound."], say:"What two letters start the word "+w+"?" }; },
+  function(){ var sing=pick([['cat','cats'],['dog','dogs'],['cup','cups'],['box','boxes'],['bus','buses'],['hat','hats']]);
+    return { topic:"Plurals", q:"What is more than one <b>"+sing[0]+"</b>?", options:wordOpts(sing[1],['cats','dogs','boxes','buses','cups','hats',sing[0]]), a:sing[1],
+      steps:["Add "+(/es$/.test(sing[1])?"-es":"-s")+":  <b>"+sing[1]+"</b>."], say:"What is more than one "+sing[0]+"?" }; }
+]};
+
+/* ---------------- GRADE 8 ENGLISH (authored item bank) ---------------- */
+var ENG8 = [
+  {q:"The hikers were <b>famished</b> after the long climb. <i>Famished</i> most nearly means —", a:"very hungry", choices:["very hungry","exhausted","cheerful","lost"], exp:"The clue is the long climb and needing food — famished means very hungry."},
+  {q:"She gave a <b>candid</b> answer, hiding nothing. <i>Candid</i> means —", a:"honest", choices:["honest","rude","confusing","quiet"], exp:"“Hiding nothing” signals honesty — candid means frank and honest."},
+  {q:"The <b>benevolent</b> donor funded the whole library. <i>Benevolent</i> means —", a:"kind and generous", choices:["kind and generous","wealthy","famous","strict"], exp:"Funding a library for others shows kindness — benevolent means well-meaning and generous."},
+  {q:"His <b>meticulous</b> notes had no errors at all. <i>Meticulous</i> means —", a:"very careful", choices:["very careful","messy","fast","boring"], exp:"“No errors at all” points to great care — meticulous means extremely careful and precise."},
+  {q:"Which sentence uses correct subject–verb agreement?", a:"The team of players is ready.", choices:["The team of players is ready.","The team of players are ready.","The players is ready.","Each of the boys are here."], exp:"“Team” is singular, so it takes “is.” The other options mismatch the subject and verb."},
+  {q:"Choose the sentence with correct subject–verb agreement.", a:"Neither answer is correct.", choices:["Neither answer is correct.","Neither answer are correct.","The dogs barks loudly.","She walk to school."], exp:"“Neither” is singular → “is.” The others pair a singular/plural subject with the wrong verb."},
+  {q:"“Her smile was <b>sunshine</b> on a rainy day.” This is an example of —", a:"a metaphor", choices:["a metaphor","a simile","alliteration","onomatopoeia"], exp:"It calls the smile sunshine directly (no “like/as”), so it is a metaphor."},
+  {q:"“The wind <b>whispered</b> through the trees.” This figure of speech is —", a:"personification", choices:["personification","hyperbole","simile","a pun"], exp:"Wind can’t really whisper; giving it a human action is personification."},
+  {q:"“He ran <b>as fast as a cheetah</b>.” This is —", a:"a simile", choices:["a simile","a metaphor","idiom","irony"], exp:"It compares using “as … as,” which makes it a simile."},
+  {q:"Which sentence is written in the <b>active</b> voice?", a:"The chef cooked the meal.", choices:["The chef cooked the meal.","The meal was cooked by the chef.","The meal was being cooked.","The meal had been cooked."], exp:"In the active voice the subject (chef) does the action. The others put the action onto the meal (passive)."},
+  {q:"Where does the comma belong?  “After the rain stopped ___ we went outside.”", a:"a comma after “stopped”", choices:["a comma after “stopped”","a comma after “we”","no comma needed","a comma after “outside”"], exp:"An introductory clause (“After the rain stopped”) is followed by a comma."},
+  {q:"Which word is a <b>synonym</b> for <i>reluctant</i>?", a:"unwilling", choices:["unwilling","eager","angry","tired"], exp:"Reluctant means hesitant or unwilling; “eager” is its opposite."},
+  {q:"The root <b>“bio”</b> in <i>biology</i> means —", a:"life", choices:["life","earth","light","sound"], exp:"“Bio” means life, so biology is the study of living things."},
+  {q:"The prefix <b>“un-”</b> in <i>unfair</i> means —", a:"not", choices:["not","again","before","very"], exp:"“Un-” means not, so unfair means not fair."},
+  {q:"Which is a <b>fact</b>, not an opinion?", a:"Water freezes at 0°C.", choices:["Water freezes at 0°C.","Winter is the best season.","Blue is prettier than red.","Homework is boring."], exp:"A fact can be checked and proven. The others state personal feelings (opinions)."},
+  {q:"Which sentence is <b>strongest evidence</b> that a plant needs light?", a:"A plant kept in the dark turned yellow and wilted.", choices:["A plant kept in the dark turned yellow and wilted.","Plants are green and pretty.","My mom likes plants.","Some plants grow tall."], exp:"It shows a measurable result tied to light — the clearest supporting evidence."},
+  {q:"Choose the correctly punctuated sentence.", a:"I was tired; I kept working.", choices:["I was tired; I kept working.","I was tired, I kept working.","I was tired I kept working.","I was tired: I kept working."], exp:"A semicolon correctly joins two complete, related sentences. A comma alone makes a run-on."},
+  {q:"“Learning Live is <b>the best app ever made</b>.” This statement is —", a:"an opinion", choices:["an opinion","a fact","a definition","a measurement"], exp:"“Best ever” is a judgment that can’t be proven — an opinion."}
+];
+BANKS.english['8'] = { label:"Grade 8 English", gens:[ function(){ var it=pick(ENG8);
+  return { topic:"Reading &amp; language", q:it.q, options:it.choices.slice(), a:it.a, steps:[it.exp], say:String(it.q).replace(/<[^>]+>/g,'') }; } ]};
+
+/* grade display + ordering */
+var GRADE_NAME = { 'PreK':'Preschool', 'K':'Kindergarten', '1':'Grade 1','2':'Grade 2','3':'Grade 3','4':'Grade 4','5':'Grade 5','6':'Grade 6','7':'Grade 7','8':'Grade 8','9':'Grade 9','10':'Grade 10','11':'Grade 11','12':'Grade 12' };
+var GRADE_ORDER = ['PreK','K','1','2','3','4','5','6','7','8','9','10','11','12'];
+function repeatStr(s,n){ var o=""; for(var i=0;i<n;i++)o+=s; return o; }
+
+/* ---------- Firebase ---------- */
+var db=null, FBOK=false;
+function configReady(){ return FIREBASE_CONFIG && FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.apiKey.indexOf("PASTE_")!==0 && FIREBASE_CONFIG.databaseURL; }
+function initFB(){ if(!configReady())return false; try{ firebase.initializeApp(FIREBASE_CONFIG); db=firebase.database(); FBOK=true; return true; }catch(e){ console.error(e); return false; } }
+
+/* ---------- identity ---------- */
+function pid(){ var k="ll_pid"; var v=null; try{v=sessionStorage.getItem(k);}catch(e){} if(!v){ v="p"+Math.random().toString(36).slice(2,9); try{sessionStorage.setItem(k,v);}catch(e){} } return v; }
+function genCode(){ var L="ABCDEFGHJKLMNPQRSTUVWXYZ"; var s=""; for(var i=0;i<4;i++)s+=L[Math.floor(Math.random()*L.length)]; return s; }
+
+/* ===================== HOST SETUP ===================== */
+var SEL={ subject:null, grade:null };
+function goHostSetup(){ if(!FBOK){ show('setup'); return; } SEL={subject:null,grade:null}; $$('#subjPick .pickbtn').forEach(function(b){b.classList.remove('on');}); $('#gradePick').innerHTML='<span class="muted small">Choose a subject first ☝️</span>'; $('#createBtn').disabled=true; show('hostSetup'); }
+function pickSubject(s){ SEL.subject=s; SEL.grade=null; $$('#subjPick .pickbtn').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-subj')===s); });
+  var grades=Object.keys(BANKS[s]).sort(function(a,b){return GRADE_ORDER.indexOf(a)-GRADE_ORDER.indexOf(b);});
+  $('#gradePick').innerHTML=grades.map(function(g){ return '<button class="pickbtn gradebtn" data-grade="'+g+'" onclick="pickGrade(\''+g+'\')">'+GRADE_NAME[g]+'<small>'+esc(BANKS[s][g].label)+'</small></button>'; }).join('');
+  $('#createBtn').disabled=true;
+}
+function pickGrade(g){ SEL.grade=g; $$('#gradePick .pickbtn').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-grade')===g); }); $('#createBtn').disabled=false; }
+
+/* ===================== HOST ===================== */
+var ROOM=null, HOST={ qi:-1, used:{}, answerIndex:-1, answerText:"", phase:"lobby", players:{}, steps:[] };
+function currentBank(){ return BANKS[SEL.subject] && BANKS[SEL.subject][SEL.grade]; }
+function goHost(){
+  if(!FBOK){ show('setup'); return; }
+  if(!SEL.subject||!SEL.grade){ toast("Pick a subject and grade"); return; }
+  var bank=currentBank(); var label=bank.label;
+  ROOM=genCode();
+  db.ref('rooms/'+ROOM).set({ app:"learn", createdAt:firebase.database.ServerValue.TIMESTAMP, subject:SEL.subject, grade:SEL.grade, label:label, state:"lobby", qIndex:-1, total:TOTAL_Q });
+  db.ref('rooms/'+ROOM).onDisconnect().remove();
+  $('#hostCode').textContent=ROOM;
+  $('#hLobbyLabel').textContent="📚 "+label;
+  var base=location.origin+location.pathname.replace(/[^\/]*$/,'');
+  $('#joinUrl').textContent=base+"  · code "+ROOM;
+  db.ref('rooms/'+ROOM+'/players').on('value', function(snap){
+    HOST.players=snap.val()||{}; var ids=Object.keys(HOST.players);
+    $('#plCount').textContent=ids.length;
+    $('#lobbyPlayers').innerHTML=ids.map(function(id){var p=HOST.players[id]; return '<span class="pchip" style="background:'+(p.color||'#888')+'">'+esc(p.name)+'</span>';}).join('');
+    $('#startBtn').disabled=ids.length<1;
+    renderLiveLeaderboards();
+  });
+  db.ref('rooms/'+ROOM+'/answers').on('value', function(snap){
+    HOST.allAnswers=snap.val()||{};
+    if(HOST.phase==='question'){ var a=(HOST.allAnswers[HOST.qi])||{}; $('#hAnsCount').textContent=Object.keys(a).length; $('#hPlTotal').textContent=Object.keys(HOST.players).length; }
+  });
+  db.ref('rooms/'+ROOM).on('value', function(snap){ var r=snap.val(); if(r&&r.state==='ended'){ showResults(r); } });
+  show('hostLobby');
+}
+function hostStart(){ if(!ROOM)return; HOST.qi=-1; HOST.used={}; nextQuestion(); }
+function makeQuestion(){ var bank=currentBank(); var tries=0, q;
+  do{ q=pick(bank.gens)(); tries++; }while(HOST.used[q.q] && tries<12);
+  HOST.used[q.q]=1; return q;
+}
+function nextQuestion(){
+  HOST.qi++;
+  if(HOST.qi>=TOTAL_Q){ hostEndGame(); return; }
+  var q=makeQuestion();
+  var opts=shuffle(q.options.slice(0,4)); if(opts.indexOf(q.a)<0){ opts[0]=q.a; opts=shuffle(opts); }
+  HOST.answerIndex=opts.indexOf(q.a); HOST.answerText=q.a; HOST.steps=q.steps||[]; HOST.phase='question';
+  SAY_H=q.say||q.q;
+  var payload={ q:q.q, options:opts, ref:q.topic||"", idx:HOST.qi, say:(q.say||""), at:firebase.database.ServerValue.TIMESTAMP };
+  db.ref('rooms/'+ROOM).update({ state:"question", qIndex:HOST.qi, current:payload, reveal:null });
+  $('#hRoom').textContent="Room "+ROOM; $('#hLabel').textContent=currentBank().label; $('#hProg').textContent="Q "+(HOST.qi+1)+"/"+TOTAL_Q;
+  $('#hQ').innerHTML=q.q; $('#hRef').textContent=q.topic||"";
+  $('#hOpts').innerHTML=opts.map(function(o,i){return '<div class="opt '+OPTCLS[i]+'"><span class="lab">'+OPTLAB[i]+'</span> '+esc(o)+'</div>';}).join('');
+  $('#hReveal').style.display="none"; $('#hAnsCount').textContent="0"; $('#hPlTotal').textContent=Object.keys(HOST.players).length;
+  $('#hStatus').style.display=""; $('#hAction').textContent="Reveal answer ▶️";
+  show('hostPlay');
+}
+function hostAction(){ if(HOST.phase==='question') hostReveal(); else nextQuestion(); }
+function stepsHTML(steps,answer){ if(!steps||!steps.length)return ""; return '<div class="explain"><div class="eh">✅ Answer: '+esc(answer)+' — here\'s how 👇</div><ol>'+steps.map(function(s){return '<li>'+s+'</li>';}).join('')+'</ol></div>'; }
+function hostReveal(){
+  HOST.phase='reveal';
+  var ans=(HOST.allAnswers&&HOST.allAnswers[HOST.qi])||{};
+  var updates={}, counts=[0,0,0,0];
+  Object.keys(ans).forEach(function(id){
+    var a=ans[id]; if(a.choice>=0&&a.choice<4)counts[a.choice]++;
+    var correct=(a.choice===HOST.answerIndex); var pts=correct?1:0;
+    var cur=(HOST.players[id]&&HOST.players[id].score)||0;
+    updates['players/'+id+'/score']=cur+pts; updates['players/'+id+'/last']=correct?pts:0;
+  });
+  updates['reveal']={ correctIndex:HOST.answerIndex, a:HOST.answerText, counts:counts, steps:HOST.steps };
+  updates['state']="reveal";
+  db.ref('rooms/'+ROOM).update(updates);
+  $$('#hOpts .opt').forEach(function(b,i){ if(i===HOST.answerIndex)b.classList.add('right'); else b.classList.add('dim'); });
+  $('#hStatus').style.display="none"; $('#hSteps').innerHTML=stepsHTML(HOST.steps,HOST.answerText); $('#hReveal').style.display="";
+  $('#hAction').textContent=(HOST.qi+1>=TOTAL_Q)?"See final results 🏆":"Next question ▶️";
+  renderLiveLeaderboards();
+}
+function hostEndGame(){ db.ref('rooms/'+ROOM).update({ state:"ended" }); db.ref('rooms/'+ROOM).once('value').then(function(s){ var r=s.val(); if(r) showResults(r); }); }
+function hostEndRoom(){ if(ROOM){ db.ref('rooms/'+ROOM).remove(); } location.reload(); }
+function renderLiveLeaderboards(){ $('#hLB').innerHTML=leaderboardHTML(Object.keys(HOST.players||{}).map(function(id){return HOST.players[id];})); }
+function leaderboardHTML(arr){
+  arr=arr.slice().sort(function(a,b){return (b.score||0)-(a.score||0);});
+  return arr.slice(0,14).map(function(p,i){ var medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)+'.'; return '<div class="lbrow"><span class="nm"><span class="dot" style="background:'+(p.color||'#888')+'"></span>'+medal+' '+esc(p.name)+'</span><b>'+(p.score||0)+'</b></div>'; }).join('');
+}
+
+/* ===================== GUEST ===================== */
+var ME={ code:null, name:null, score:0, answeredQi:-1 };
+function doJoin(){
+  if(!FBOK){ show('setup'); return; }
+  var code=($('#codeIn').value||"").toUpperCase().replace(/[^A-Z]/g,'').slice(0,4);
+  var name=($('#nameIn').value||"").trim().slice(0,14);
+  if(code.length!==4){ toast("Enter the 4-letter code"); return; }
+  if(!name){ toast("Enter your name"); return; }
+  db.ref('rooms/'+code).once('value').then(function(snap){
+    var r=snap.val();
+    if(!r){ toast("No game with that code"); return; }
+    if(r.app!=='learn'){ toast("That code isn't a Learning Live game"); return; }
+    ME.code=code; ME.name=name;
+    db.ref('rooms/'+code+'/players/'+pid()).set({ name:name, color:pick(COLORS), score:0, joinedAt:firebase.database.ServerValue.TIMESTAMP });
+    db.ref('rooms/'+code+'/players/'+pid()).onDisconnect().remove();
+    $('#gName').textContent=name; $('#gLabel').textContent="📚 "+(r.label||"");
+    watchRoomAsGuest(code);
+    show('guestPlay'); $('#gWait').textContent="Joined! Waiting for the host to start… ✨"; $('#gQ').textContent="Get ready!"; $('#gOpts').innerHTML="";
+  });
+}
+function watchRoomAsGuest(code){
+  db.ref('rooms/'+code).on('value', function(snap){
+    var r=snap.val(); if(!r){ toast("The host closed the room."); setTimeout(function(){location.reload();},1500); return; }
+    var me=(r.players&&r.players[pid()])||{}; ME.score=me.score||0; $('#gScore').textContent=(ME.score)+" right";
+    if(r.label)$('#gLabel').textContent="📚 "+r.label;
+    if(r.state==='question' && r.current){ guestQuestion(r); if(ME.answeredQi===r.qIndex){ var ans=(r.answers&&r.answers[r.qIndex])||{}; $('#gWait').textContent="⏳ "+Object.keys(ans).length+" of "+Object.keys(r.players||{}).length+" answered…"; } }
+    else if(r.state==='reveal'){ guestReveal(r); }
+    else if(r.state==='ended'){ guestEnd(r); }
+  });
+}
+function guestQuestion(r){
+  var qi=r.qIndex; ME.curQi=qi;
+  if(ME.renderedQi===qi) return;
+  ME.renderedQi=qi; ME.chosen=null;
+  SAY_G=(r.current.say)||r.current.q;
+  $('#gProg').textContent="Q "+(qi+1)+"/"+(r.total||TOTAL_Q);
+  $('#gQ').innerHTML=r.current.q; $('#gRef').textContent=r.current.ref||"";
+  $('#gReveal').style.display="none"; $('#gFeed').textContent="";
+  var answered=(ME.answeredQi===qi);
+  $('#gWait').textContent=answered?"Answer locked in — waiting for others… ⏳":"Tap your answer!";
+  $('#gOpts').innerHTML=(r.current.options||[]).map(function(o,i){return '<button class="opt '+OPTCLS[i]+'" '+(answered?'disabled':'')+' onclick="guestAnswer('+i+')"><span class="lab">'+OPTLAB[i]+'</span> '+esc(o)+'</button>';}).join('');
+}
+function guestAnswer(i){
+  var qi=ME.curQi; if(qi==null || ME.answeredQi===qi) return;
+  ME.answeredQi=qi; ME.chosen=i;
+  db.ref('rooms/'+ME.code+'/answers/'+qi+'/'+pid()).set({ choice:i });
+  $$('#gOpts .opt').forEach(function(b,j){ b.disabled=true; if(j===i)b.classList.add('chosen'); else b.classList.add('dim'); });
+  $('#gWait').textContent="Answer locked in — waiting for others… ⏳";
+}
+function guestReveal(r){
+  if(!r.reveal) return;
+  var ci=r.reveal.correctIndex;
+  if(ME.chosen!=null){ var ob=$$('#gOpts .opt')[ME.chosen]; if(ob)ob.classList.add('chosen'); }
+  $$('#gOpts .opt').forEach(function(b,j){ b.disabled=true; if(j===ci){ b.classList.remove('dim'); b.classList.add('right'); } else if(!b.classList.contains('chosen'))b.classList.add('dim'); });
+  var me=(r.players&&r.players[pid()])||{}; var gotPts=me.last||0;
+  var picked=(r.current&&r.current.options&&ME.chosen!=null)?r.current.options[ME.chosen]:null;
+  var f=$('#gFeed');
+  if(gotPts>0){ f.textContent="✅ Correct!  (+1 point)"; f.className="big-feed ok"; }
+  else if(picked!=null){ f.textContent="❌ You picked "+picked+" — answer: "+r.reveal.a; f.className="big-feed no"; }
+  else { f.textContent="⌛ No answer — it was: "+r.reveal.a; f.className="big-feed no"; }
+  $('#gSteps').innerHTML=stepsHTML(r.reveal.steps,r.reveal.a);
+  $('#gWait').textContent="Here's how everyone's doing:";
+  $('#gReveal').style.display=""; $('#gLB').innerHTML=leaderboardHTML(Object.keys(r.players||{}).map(function(id){return r.players[id];}));
+  $('#gScore').textContent=(me.score||0)+" right";
+}
+function guestEnd(r){ showResults(r); }
+
+/* ---------- results ---------- */
+function showResults(r){
+  var arr=Object.keys(r.players||{}).map(function(id){return r.players[id];}).sort(function(a,b){return (b.score||0)-(a.score||0);});
+  var top=arr.length?(arr[0].score||0):0;
+  var winners=arr.filter(function(p){return (p.score||0)===top;});
+  var tie=winners.length>1 && top>0;
+  $('#resEmoji').textContent= tie?"🤝":"🏆";
+  $('#resTitle').textContent= (!arr.length||top===0)?"Game over":(tie?"It's a tie!":(arr[0].name+" wins!"));
+  $('#resLB').innerHTML=leaderboardHTML(arr);
+  show('results');
+}
+
+/* ---------- boot ---------- */
+(function boot(){
+  if(initFB()){ show('home'); } else { show('setup'); }
+  var ci=$('#codeIn'); if(ci) ci.addEventListener('input', function(){ this.value=this.value.toUpperCase().replace(/[^A-Z]/g,'').slice(0,4); });
+})();
+</script>
+<script>if("serviceWorker" in navigator)try{navigator.serviceWorker.register("sw.js")}catch(e){}</script>
+</body>
+</html>
