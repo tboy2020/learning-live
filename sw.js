@@ -1,7 +1,7 @@
 /* Learning Live — service worker.
    Shell cache-first; same-origin docs network-first. Cross-origin (Firebase,
    gstatic) is NOT intercepted — real-time traffic passes straight through. */
-var CACHE = 'learn-live-v4';
+var CACHE = 'learn-live-v5';
 var SHELL = ['./', './index.html', './manifest.json',
              './icon-192.png', './icon-512.png', './icon-180.png'];
 
